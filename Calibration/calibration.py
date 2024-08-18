@@ -1,5 +1,7 @@
 import numpy as np
 import cv2 as cv
+import sys
+import yaml
 
 print("""
       Usage:
@@ -76,7 +78,16 @@ while True:
                 np.set_printoptions(precision=2, suppress=True)
                 print("Matriz K", K)
                 np.set_printoptions(**defaultPrintOptions)
+                
+                # Write K and distCoef to a YAML file
+                output_file = 'intrinsic_parameters.yaml'
+                with open(output_file, 'w') as file:
+                    yaml.dump({
+                        'K': K.tolist(),
+                        'distCoef': distCoef.tolist()
+                    }, file)
+                print(f"Intrinsic matrix K and distortion coefficients saved to {output_file}")
 
-            case ESC:
+            case 'f':
                 print("Terminando.")
-                break
+                sys.exit()

@@ -1,0 +1,4 @@
+certifi==2023.7.22
+numpy==1.26.1
+opencv-python==4.10.0.84
+PyYAML==6.0.2
