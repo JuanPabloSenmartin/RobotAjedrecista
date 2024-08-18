@@ -36,6 +36,11 @@ print("Cam resolution:", width, " x ", height)
 newSize = (640, int(640 * height / width))
 imBlack = np.zeros(newSize[::-1]+(3,), dtype=np.uint8)
 
+hasCalibratedIntrinsic = False
+extrensicImgPoints = []
+extrensicObjPoints = []
+
+
 while True:
     ret, im = cam.read()
     if ret:
@@ -58,8 +63,12 @@ while True:
                 ret, precisionCorners = cv.findChessboardCorners(imGray, chessBoard, None)
                 if ret:
                     precisionCorners = cv.cornerSubPix(imGray, precisionCorners, (11,11), (-1,-1), cornersubpixTerminationCriteria)
-                    imgPoints.append(precisionCorners)
-                    objPoints.append(chessboardPointCloud3D)
+                    if (hasCalibratedIntrinsic):
+                        extrensicImgPoints.append(precisionCorners)
+                        extrensicObjPoints.append(chessboardPointCloud3D)
+                    else:
+                        imgPoints.append(precisionCorners)
+                        objPoints.append(chessboardPointCloud3D)
 
                     # Anota en baja resolución
                     imBlack = cv.convertScaleAbs(imBlack, alpha=gradualDarkness, beta=0)
@@ -87,6 +96,26 @@ while True:
                         'distCoef': distCoef.tolist()
                     }, file)
                 print(f"Intrinsic matrix K and distortion coefficients saved to {output_file}")
+                hasCalibratedIntrinsic = True
+
+            case 'e':
+                # Calibra
+                ret, K, distCoef, rvecs, tvecs = cv.calibrateCamera(extrensicObjPoints, extrensicImgPoints, im.shape[:2][::-1], None, None, flags=cv.CALIB_ZERO_TANGENT_DIST)
+
+                # Muestra resultados
+                np.set_printoptions(precision=2, suppress=True)
+                print("Coeficientes de rotacion:", rvecs)
+                print("Coeficientes de tranformacion:", tvecs)
+                np.set_printoptions(**defaultPrintOptions)
+
+
+                output_file = 'extrinsic_parameters.yaml'
+                with open(output_file, 'w') as file:
+                    yaml.dump({
+                        'rvecs': [rvec.tolist() for rvec in rvecs],
+                        'tvecs': [tvec.tolist() for tvec in tvecs]
+                    }, file)
+                print(f"Coeficientes de tranformacion y rotacion guardados en {output_file}")
 
             case 'f':
                 print("Terminando.")
