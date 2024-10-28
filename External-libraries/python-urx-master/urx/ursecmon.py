@@ -309,7 +309,7 @@ class SecondaryMonitor(Thread):
             if self._parser.version >= (3, 0):
                 rmode = 7
 
-            if self._dict["RobotModeData"]["robotMode"] == 7 \
+            if self._dict["RobotModeData"]["robotMode"] == rmode \
                     and self._dict["RobotModeData"]["isRealRobotEnabled"] is True \
                     and self._dict["RobotModeData"]["isEmergencyStopped"] is False \
                     and self._dict["RobotModeData"]["isSecurityStopped"] is False \

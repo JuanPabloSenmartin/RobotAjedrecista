@@ -5,9 +5,10 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / 'External-libraries' / 'python-urx-master'))
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'python-urx-master'))
 import urx
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
+
 
 v = 0.8
 a = 0.35
@@ -28,13 +29,13 @@ robot_reach_down_position = (math.radians(-218),
 
 
 def movejRobot(position):
-    rob.movej(position, a, v, wait=True, relative=False, threshold=None)
+    rob.movej(position, a, v, relative=False, threshold=None)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARN)
 
-    rob = urx.Robot("192.168.56.101")
+    rob = urx.Robot("192.168.0.16")
     robotiqgrip = Robotiq_Two_Finger_Gripper(rob)
     #rob = urx.Robot("localhost")
     rob.set_tcp((0,0,0,0,0,0))
@@ -42,11 +43,11 @@ if __name__ == "__main__":
     try:
         l = 0.05
         
-        # joint_angles = rob.getj()
-        # print('joint position: ', joint_angles)
-        # print('go to start position')
-        # movejRobot(robot_startposition)
-        # time.sleep(2)
+        joint_angles = rob.getj()
+        print('joint position: ', joint_angles)
+        print('go to start position')
+        movejRobot(robot_startposition)
+        time.sleep(2)
         # print('go down')
         # movejRobot(robot_reach_down_position)
         # time.sleep(2)
@@ -76,21 +77,21 @@ if __name__ == "__main__":
         pose = rob.getl()
         print("robot tcp is at: ", pose)
         print("absolute move in base coordinate ")
-        
-        rob.movel(robot_startposition_tcp2, acc=a, vel=v)
-        time.sleep(2)
-        pose = robot_startposition_tcp2
-        pose[2] = pose[2] - 0.3
-        rob.movel(pose, acc=a, vel=v)
-        time.sleep(2)
-        print('close gripper')
+        # pose[2] = pose[2] + 1
+        # rob.movel(robot_startposition, acc=a, vel=v)
+        # time.sleep(2)
+        # pose = robot_startposition_tcp2
+        # pose[2] = pose[2] - 0.3
+        # rob.movel(pose, acc=a, vel=v)
+        # time.sleep(2)
+        # print('close gripper')
         robotiqgrip.close_gripper()
         time.sleep(2)
         print('open gripper')
         robotiqgrip.open_gripper()
-        pose[2] = pose[2] + 0.3
-        rob.movel(pose, acc=a, vel=v)
-        time.sleep(2)
+        # pose[2] = pose[2] + 0.3
+        # rob.movel(pose, acc=a, vel=v)
+        # time.sleep(2)
         
         # time.sleep(2)
         # rob.movel(robot_reach_down_position_tcp, acc=a, vel=v)

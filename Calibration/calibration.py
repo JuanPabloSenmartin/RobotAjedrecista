@@ -29,7 +29,7 @@ chessboardPointCloud3D[:,:2] = np.mgrid[0:chessBoard[0],0:chessBoard[1]].T.resha
 imChessboard = cv.imread("pattern_chessboard 6 x 9.png")#, flags = cv.IMREAD_GRAYSCALE)
 cv.imshow("Tablero", imChessboard) # Opens an empty window?
 
-cam = cv.VideoCapture(0)
+cam = cv.VideoCapture(1)
 width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
 height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)
 print("Cam resolution:", width, " x ", height)
@@ -47,6 +47,7 @@ while True:
         imLowRes = cv.resize(im, newSize)
         imGrayLowRes = cv.cvtColor(imLowRes, cv.COLOR_BGR2GRAY)
         ret, corners = cv.findChessboardCorners(imGrayLowRes, chessBoard, None)
+        
         if ret:
             cv.drawChessboardCorners(imLowRes, chessBoard, corners, ret)
     
@@ -99,6 +100,7 @@ while True:
                 hasCalibratedIntrinsic = True
 
             case 'e':
+                print(corners)
                 # Calibra
                 ret, K, distCoef, rvecs, tvecs = cv.calibrateCamera(extrensicObjPoints, extrensicImgPoints, im.shape[:2][::-1], None, None, flags=cv.CALIB_ZERO_TANGENT_DIST)
 
