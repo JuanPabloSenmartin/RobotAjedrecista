@@ -4,6 +4,7 @@ import time
 
 # from RobotAjedrecista.Chess.chess_utils import Chess
 from Cobot.cobot_utils import Cobot
+import sys
 import urx
 
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
@@ -57,18 +58,21 @@ def stopRobot(cobot):
 
 
 if __name__ == "__main__":
-    HOST = "192.168.0.18"  # IP del robot
-    
-
+    HOST = "192.168.0.18"
+    #
+    #
     rob = urx.Robot(HOST)
-    robotiqgrip = Robotiq_Two_Finger_Gripper.Robotiq_Two_Finger_Gripper(rob)
+    robotiqgrip = Robotiq_Two_Finger_Gripper(rob)
     print("conectando a gripper...")
     time.sleep(1)
-
     #
-
+    #
+    #
     print("abrir gripper")
-    robotiqgrip.open_gripper()
+    # robotiqgrip.open_gripper()
+    robotiqgrip.gripper_action(100)
+    # rob.send_program(robotiqgrip.ret_program_to_run())
+
 
     print("cerrar gripper")
     robotiqgrip.close_gripper()
@@ -78,7 +82,17 @@ if __name__ == "__main__":
     # rob = (urx.Robot("192.168.0.18"))
     # robotiqgrip = Robotiq_Two_Finger_Gripper(rob)
     # print("conectando a gripper...")
-    # time.sleep(5)
+    # time.sleep(1)
+    #
+    # print('sending command')
+    #
+    # urscript = robotiqgrip._get_new_urscript()
+
+    # rob.send_program(str(urscript._set_gripper_position(165)))
+    # urscript._set_gripper_activate()
+
+    # robotiqgrip.gripper_action(value=100)
+    # rob.send_program(str(robotiqgrip.gripper_action(GRIPPER_CLOSED)))
 
     # robotiqgrip.close_gripper()
     # time.sleep(5)
@@ -89,10 +103,10 @@ if __name__ == "__main__":
     # POSITION = [0.4, 0.3, z_HIGH]
     # global position
     # inital_pos = POSITION
-    # cobot.move_robot([0.4, 0.3, z_HIGH], z_HIGH)
-    # time.sleep(5)
+    # cobot.move_robot([0.5, 0.3], z_HIGH)
+    # time.sleep(2)
     #
-    # cobot.move_robot(inital_pos, z_LOW)
+    # cobot.move_robot([0.5, 0.3], z_LOW)
     #
     # time.sleep(5)
     # print('close gripper')
@@ -100,6 +114,8 @@ if __name__ == "__main__":
     # time.sleep(5)
     # print('open gripper')
     # cobot.openGripper()
+    # time.sleep(5)
+    # sys.exit(0)
 
     # cobot.closeGripper()
 

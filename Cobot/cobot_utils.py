@@ -60,10 +60,12 @@ class Cobot:
         print(f"Command sent: {command}")
 
     def openGripper(self):
+        # self.cobot.send(str(self.gripper.gripper_action(self.GRIPPER_SEMI_CLOSED)).encode('utf-8'))
         self.gripper.gripper_action(self.GRIPPER_SEMI_CLOSED)
         time.sleep(3)
 
     def closeGripper(self):
+        # self.cobot.send(str(self.gripper.gripper_action(self.GRIPPER_CLOSED)).encode('utf-8'))
         self.gripper.gripper_action(self.GRIPPER_CLOSED)
         time.sleep(3)
 
