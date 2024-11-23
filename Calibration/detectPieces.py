@@ -1,7 +1,6 @@
 import cv2
 import math
 
-
 def on_trackbar(val): # Cuando hay un cambio, que no haga nada. Ahora estamos pidiendo siempre el valor. Podriamos pasarle una funcion que cambie la imagen. 
     pass
 
@@ -31,7 +30,7 @@ cv2.createTrackbar('threshold', 'img1', 80, 255, on_trackbar) # Create trackbar 
 cv2.createTrackbar('denoise', 'img1', 7, 50, on_trackbar) # Create trackbar for denoise
 cv2.createTrackbar('minArea', 'img1', 450, 10000, on_trackbar) # Create trackbars for area
 cv2.createTrackbar('maxArea', 'img1', 95000, 99999, on_trackbar)
-#cv2.createTrackbar('tolerance', 'img1', 20, 100, on_trackbar) # Create trackbar for distance, decimal
+
 saved_contours = []
 biggest_contour = None
 
@@ -44,7 +43,7 @@ while True:
     kernel_radius = get_trackbar_value('denoise', 'img1') # Grab trackbar value for denoise
     min_area = get_trackbar_value('minArea', 'img1')
     max_area = get_trackbar_value('maxArea', 'img1')
-    #distance = get_trackbar_value('tolerance', 'img1')/100 # Grab trackbar value for distance, then convert to decimal
+
     
     ret1, thresh1 = cv2.threshold(grey_frame, threshold_value, 255, cv2.THRESH_BINARY) # Apply threshold with trackbar value
     denoise_frame = denoise(thresh1, cv2.MORPH_ELLIPSE, kernel_radius) # Apply denoise
@@ -55,20 +54,8 @@ while True:
     predicted_labels = []
 
     for contour in filtered_contours:   
-       
-        hu_moments = cv2.HuMoments(cv2.moments(contour)).flatten()
-        for i in range(0, 7):
-            hu_moments[i] = -1 * math.copysign(1.0, hu_moments[i]) * math.log10(abs(hu_moments[i])) # Mapeo para agrandar la escala.
-    
-        # min_score = min(square_score, circle_score, star_score)
-
-        x, y, w, h = cv2.boundingRect(contour)
-
-        # if min_score > distance: # If the score is bigger than distance selected, it doesnt match any shape
         cv2.drawContours(flip_frame, [contour], -1, (0, 0, 255), 5) # If it doesnt match any shape, paint contour in red
  
-    
-
     cv2.imshow('img1', flip_frame) # Show image
 
     if cv2.waitKey(1) == ord('z'): # Waits () amount of time, if the key 'z' is pressed, it stops the loop

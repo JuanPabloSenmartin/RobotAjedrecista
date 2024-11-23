@@ -12,21 +12,21 @@ img_pts = np.array([
 
 
 # Coordenadas reales (x, y) en el sistema del robot (e.g., en centímetros o milímetros)
-real_pts = np.array([
+robot_pts = np.array([
     [4, 55],  # esquina superior izquierda
     [-8, 55],  # esquina superior derecha
     [4, 35.8],  # esquina inferior derecha
     [-8, 35.8]   # esquina inferior izquierda
 ], dtype="float32")
 
-matrix = cv.getPerspectiveTransform(img_pts, real_pts)
+matrix = cv.getPerspectiveTransform(img_pts, robot_pts) # Sacamos la matriz de "transformacion"
 print(matrix)
 
 point1 = np.array([[[669.6579, 337.3834]]], dtype="float32")
 point2 = np.array([[[843.5678, 147.28915]]], dtype="float32")
 point3 = np.array([[[819.543, 236.49738]]], dtype="float32")
 
-transformed_point1 = cv.perspectiveTransform(point1, matrix)
+transformed_point1 = cv.perspectiveTransform(point1, matrix) # Transformamos los puntos de la imagen al sistema del robot
 transformed_point2 = cv.perspectiveTransform(point2, matrix)
 transformed_point3 = cv.perspectiveTransform(point3, matrix)
 
