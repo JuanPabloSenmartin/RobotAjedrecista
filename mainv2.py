@@ -59,6 +59,12 @@ def isGameOver(chess):
 def isCapture(chess, move):
     return chess.isMoveCapture(move)
 
+def isCastle(chess, move):
+    return chess.isMoveCastle(move)
+
+def isPromotion(chess, move):
+    return chess.isMovePromotion(move)
+
 def printGameOver(chess):
     print('GAME OVER')
     print("Reason for game over:")
@@ -169,19 +175,33 @@ if __name__ == "__main__":
                 print('best_move', best_move)
 
                 if isMoveValid(chess, best_move):
+
                     if isCapture(chess, best_move):
+                        print('capture')
                         ##move other piece first
                         ##movePiece(cobot, [], [])
-                        print('moving taken piece')
-                    ##move robot piece
+
+                    ##move piece
                     ##movePiece(cobot, [], [])
-                    print('moving robot piece')
+
+                    if isPromotion(chess, best_move):
+                        print('promotion')
+                        ##takes pawn out of the board
+                        ##movePiece(cobot, [], [])
+                        ##brings queen back from outside the board
+                        ##movePiece(cobot, [], [])
+
+                    if isCastle(chess, best_move):
+                        print('castle')
+                        ##move rook to new position
+                        ##movePiece(cobot, [], [])
+
                     updateBoard(chess, best_move)
                     chess.printBoard()
                 else:
                     print('invalid move made by stockfish')
         else:
-            print('chessboard equal')
+            print('chessboards are equal')
 
         print("Press enter to continue...")
         keyboard.wait("space")

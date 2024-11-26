@@ -22,6 +22,69 @@ class Chess:
         self.stockfish.set_fen_position(self.board.fen())
         return self.stockfish.get_best_move()
 
+    def isMoveCastle(self, move: str) -> bool:
+        """
+        Checks if the given move is a castling move.
+
+        Args:
+            move (str): The move in UCI format (e.g., 'e1g1' for kingside castling).
+
+        Returns:
+            bool: True if the move is a castling move, False otherwise.
+        """
+        # Parse the move into a chess.Move object
+        chess_move = chess.Move.from_uci(move)
+
+        # Check if the move is legal
+        if chess_move not in self.board.legal_moves:
+            raise ValueError(f"Invalid move: {move}")
+
+        # Castling conditions:
+        # - The moving piece must be the king
+        # - The move must represent a castling destination square
+        moving_piece = self.board.piece_at(chess_move.from_square)
+        if (
+                moving_piece is not None
+                and moving_piece.piece_type == chess.KING
+                and abs(chess_move.from_square - chess_move.to_square) == 2
+        ):
+            return True
+
+        return False
+
+    def isMovePromotion(self, move: str) -> bool:
+        """
+        Checks if the given move is a pawn promotion.
+
+        Args:
+            move (str): The move in UCI format (e.g., 'e7e8q').
+
+        Returns:
+            bool: True if the move is a pawn promotion, False otherwise.
+        """
+        # Parse the move into a chess.Move object
+        chess_move = chess.Move.from_uci(move)
+
+        # Check if the move is legal
+        if chess_move not in self.board.legal_moves:
+            raise ValueError(f"Invalid move: {move}")
+
+        # Get the moving piece
+        moving_piece = self.board.piece_at(chess_move.from_square)
+
+        # Pawn promotion conditions:
+        # - The moving piece must be a pawn
+        # - The move must end on the promotion rank (rank 8 for white, rank 1 for black)
+        # - The UCI string must include the promoted piece (e.g., "q", "r", "b", "n")
+        if (
+                moving_piece is not None
+                and moving_piece.piece_type == chess.PAWN
+                and chess_move.promotion is not None
+        ):
+            return True
+
+        return False
+
     def isMoveCapture(self, move: str) -> bool:
         """
         Checks if a move captures an opponent's piece.
