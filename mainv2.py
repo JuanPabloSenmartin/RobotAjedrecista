@@ -1,20 +1,13 @@
 import math
 import sys
 import time
-
-# from RobotAjedrecista.Chess.chess_utils import Chess
-from Cobot.cobot_utils import Cobot
-import sys
 import urx
-
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
-
 import socket
-import sys
-import time
 import numpy as np
-import urx
-from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
+from Chess.chess_utils import Chess
+from Cobot.cobot_utils import Cobot
+import keyboard
 
 z_HIGH = 0.12
 z_LOW = 0.09
@@ -45,11 +38,49 @@ def movePiece(cobot, currentPosition, nextPosition):
     global position
     position = [nextPosition[0], nextPosition[1], z_HIGH]
 
-def hasChessboardChanged(chess, newBoard):
+def areChessboardsEqual(chess, newBoard):
+    return chess.areChessboardsEqual(newBoard)
+
+def findMoveMade(chess, newBoard):
     return not(chess.areChessboardsEqual(newBoard))
 
-def isMoveValid(chess, newBoard):
-    return chess.isMoveValid(newBoard)
+def isMoveValid(chess, move):
+    return chess.isMoveValid(move)
+
+def bestMove(chess):
+    return chess.findBestMove()
+
+def updateBoard(chess, move):
+    chess.move (move)
+
+def isGameOver(chess):
+    return chess.isGameOver()
+
+def isCapture(chess, move):
+    return chess.isMoveCapture(move)
+
+def printGameOver(chess):
+    print('GAME OVER')
+    print("Reason for game over:")
+    if chess.board.is_checkmate():
+        print("Checkmate")
+    elif chess.board.is_stalemate():
+        print("Stalemate")
+    elif chess.board.is_insufficient_material():
+        print("Insufficient material")
+    elif chess.board.is_seventyfive_moves():
+        print("75-move rule")
+    elif chess.board.is_fivefold_repetition():
+        print("Fivefold repetition")
+
+    result = chess.board.result()  # Get the result of the game
+    # Determine the winner
+    if result == "1-0":
+        print("White wins!")
+    elif result == "0-1":
+        print("Black wins!")
+    elif result == "1/2-1/2":
+        print("It's a draw.")
 
 def stopRobot(cobot):
     cobot.move_robot(POSITION, z_HIGH)
@@ -58,47 +89,21 @@ def stopRobot(cobot):
 
 
 if __name__ == "__main__":
-    HOST = "192.168.0.18"
-    #
-    #
-    rob = urx.Robot(HOST)
-    robotiqgrip = Robotiq_Two_Finger_Gripper(rob)
-    print("conectando a gripper...")
-    time.sleep(1)
-    #
-    #
-    #
-    print("abrir gripper")
-    # robotiqgrip.open_gripper()
-    robotiqgrip.gripper_action(100)
-    # rob.send_program(robotiqgrip.ret_program_to_run())
-
-
-    print("cerrar gripper")
-    robotiqgrip.close_gripper()
-
-    # cobot = Cobot()
-
-    # rob = (urx.Robot("192.168.0.18"))
+    # HOST = "192.168.0.18"
+    # #
+    # rob = urx.Robot(HOST)
     # robotiqgrip = Robotiq_Two_Finger_Gripper(rob)
     # print("conectando a gripper...")
     # time.sleep(1)
-    #
-    # print('sending command')
-    #
-    # urscript = robotiqgrip._get_new_urscript()
-
-    # rob.send_program(str(urscript._set_gripper_position(165)))
-    # urscript._set_gripper_activate()
-
-    # robotiqgrip.gripper_action(value=100)
-    # rob.send_program(str(robotiqgrip.gripper_action(GRIPPER_CLOSED)))
-
+    # #
+    # robotiqgrip.gripper_action(100)
+    # print("cerrar gripper")
     # robotiqgrip.close_gripper()
-    # time.sleep(5)
-    # robotiqgrip.gripper_action(200)
 
-    # chess = Chess()
+    ####################################################################
+
+    # cobot = Cobot()
+
     # INIT_POSITION = [0.4, 0.3, z_HIGH]
     # POSITION = [0.4, 0.3, z_HIGH]
     # global position
@@ -107,49 +112,77 @@ if __name__ == "__main__":
     # time.sleep(2)
     #
     # cobot.move_robot([0.5, 0.3], z_LOW)
-    #
-    # time.sleep(5)
-    # print('close gripper')
-    # cobot.closeGripper()
-    # time.sleep(5)
-    # print('open gripper')
-    # cobot.openGripper()
-    # time.sleep(5)
-    # sys.exit(0)
 
-    # cobot.closeGripper()
+    ######################################################################
 
-    # gripper.gripper_action(GRIPPER_CLOSED)
-    # rob.send_program(str(gripper.gripper_action(GRIPPER_CLOSED)))
-    # time.sleep(3)
-    # gripper.gripper_action(GRIPPER_OPEN)
-    # rob.send_program(str(gripper.gripper_action(GRIPPER_OPEN)))
-    # time.sleep(3)
+    chess = Chess()
 
-    # # OPEN GRIPPER
-    # urscript = gripper._get_new_urscript()
-    #
-    # # rob.send_program(str(urscript._set_gripper_position(165)))
-    # urscript._set_gripper_activate()
-    #
-    # gripper.gripper_action(value=0)
+    i = 0
+    j = -1
+    k = 0
 
-    # while True:
-    #     ## deteccion de piezas
-    #     newBoard = []
-    #     if hasChessboardChanged(chess, newBoard):
-    #         if not(isMoveValid(chess, newBoard)):
-    #             print('INVALID MOVE')
-    #             stopRobot(cobot)
-    #
-    #         # update MY board
-    #         # check checkmate or draw
-    #         # check best move
-    #         # if i take piece, first move enemy piece, then mine
-    #         # else move my piece
-    #         movePiece(cobot, [], [])
-    #     else:
-    #         time.sleep(2)
+    ##EXAMPLE
+    auxBoard = [ ## person WHITE, robot BLACK
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", ## person: e2e4, robot: c7c5
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1", ## person: g1f3, robot: b8c6
+        "r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1", ## person: f1b5, robot: g7g6
+        "r1bqkbnr/pp1ppp1p/2n3p1/1Bp5/4P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 0 1" ## person: b1c3, robot: f8g7
+    ]
 
+    while True:
+        if i%2 == 0:
+            ## juega persona
+            ## ESTO VA A SER BORRADO DESPUES, ES PARA MOCKEAR LOS MOVIMIENTOS DE LA PERSONA
+            print("juega persona")
+            j += 1
+            i += 1
+            continue
+        print("juega robot")
 
+        ## deteccion de piezas
+        ## ESTA VARIABLE TIENE QUE SER REMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
+        newBoard = auxBoard[j]
 
+        isChessboardEqual, move = areChessboardsEqual(chess, newBoard)
+        print('isChessboardEqual', isChessboardEqual)
+        print('move', move)
+
+        if not isChessboardEqual:
+            if not isMoveValid(chess, move):
+                print('INVALID MOVE, STOPPING ROBOT')
+                print(move)
+                # stopRobot(cobot)
+                break
+            else:
+                print('valid move')
+                updateBoard(chess, move) # update MY board
+                print('board updated')
+
+                chess.printBoard()
+
+                # check checkmate or draw
+                if isGameOver(chess):
+                    printGameOver(chess)
+                    break
+                # check best move
+                best_move = bestMove(chess)
+                print('best_move', best_move)
+
+                if isMoveValid(chess, best_move):
+                    if isCapture(chess, best_move):
+                        ##move other piece first
+                        ##movePiece(cobot, [], [])
+                        print('moving taken piece')
+                    ##move robot piece
+                    ##movePiece(cobot, [], [])
+                    print('moving robot piece')
+                    updateBoard(chess, best_move)
+                    chess.printBoard()
+                else:
+                    print('invalid move made by stockfish')
+        else:
+            print('chessboard equal')
+
+        print("Press enter to continue...")
+        keyboard.wait("space")
+        i = i + 1
