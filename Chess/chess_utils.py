@@ -1,4 +1,3 @@
-##https://py-stockfish.github.io/stockfish/stockfish/models.html#Stockfish.make_moves_from_current_position
 import chess
 import chess.engine
 import numpy as np
@@ -9,20 +8,20 @@ class Chess:
         self.board = chess.Board()
         self.stockfish = Stockfish(path="engine/stockfish/stockfish-windows-x86-64-avx2.exe")
 
-    def isMoveValid(self, move):
+    def is_move_valid(self, move):
         return self.board.is_legal(chess.Move.from_uci(move))
 
-    def isGameOver(self):
+    def is_game_over(self):
         return self.board.is_game_over()
 
-    def printBoard(self):
+    def print_board(self):
         print(self.board.unicode(borders=True))
 
-    def findBestMove(self):
+    def find_best_move(self):
         self.stockfish.set_fen_position(self.board.fen())
         return self.stockfish.get_best_move()
 
-    def isMoveCastle(self, move: str) -> bool:
+    def is_move_castle(self, move: str) -> bool:
         """
         Checks if the given move is a castling move.
 
@@ -52,7 +51,7 @@ class Chess:
 
         return False
 
-    def isMovePromotion(self, move: str) -> bool:
+    def is_move_promotion(self, move: str) -> bool:
         """
         Checks if the given move is a pawn promotion.
 
@@ -85,7 +84,7 @@ class Chess:
 
         return False
 
-    def isMoveCapture(self, move: str) -> bool:
+    def is_move_capture(self, move: str) -> bool:
         """
         Checks if a move captures an opponent's piece.
 
@@ -111,12 +110,12 @@ class Chess:
             return True
         return False
 
-    def areChessboardsEqual(self, newBoardFEN):
+    def are_chessboards_equal(self, new_board_fen):
         """
         Compares the current chess board (self.board) with a new board represented as a FEN string.
 
         Args:
-            newBoardFEN (str): A FEN string representing the new board state.
+            new_board_fen (str): A FEN string representing the new board state.
 
         Returns:
             tuple: (bool, str)
@@ -124,7 +123,7 @@ class Chess:
                 - The second element is the move in UCI format (e.g., 'e2e4') if boards are not equal.
         """
         # Create a temporary board for comparison
-        newBoard = chess.Board(newBoardFEN)
+        new_board = chess.Board(new_board_fen)
 
         # Track the origin and destination of the move
         origin, destination = None, None
@@ -132,7 +131,7 @@ class Chess:
         # Compare each square of the current board to the new board
         for square in chess.SQUARES:
             current_piece = self.board.piece_at(square)
-            new_piece = newBoard.piece_at(square)
+            new_piece = new_board.piece_at(square)
 
             if current_piece != new_piece:
                 if current_piece is not None:  # A piece was removed (origin square)
@@ -158,14 +157,12 @@ class Chess:
         return False, move
 
     def check_occupied(self, target_square):
-
         """
         Uses `python_chess` to verify that the target square is not occupied. Will return a 1 if the square is occupied.
 
         `target_square` is specified from 0 to 63, starting at A1, and moving across the rows to H8.
 
         See: https://python-chess.readthedocs.io/en/latest/core.html#squares
-
         """
         if not self.board.piece_at(target_square):
             self.occupied = 0
@@ -176,4 +173,3 @@ class Chess:
 
     def move(self, move):
         self.board.push(chess.Move.from_uci(move))
-

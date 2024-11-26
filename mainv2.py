@@ -9,63 +9,60 @@ from Chess.chess_utils import Chess
 from Cobot.cobot_utils import Cobot
 import keyboard
 
-z_HIGH = 0.12
-z_LOW = 0.09
+z_high = 0.12
+z_low = 0.09
 
-GRIPPER_CLOSED = 200
-GRIPPER_SEMI_CLOSED = 100
-GRIPPER_OPEN = 0
+gripper_closed = 200
+gripper_semi_closed = 100
+gripper_open = 0
 
-INIT_POSITION = [0.4, 0.3, z_HIGH]
-POSITION = [0.4, 0.3, z_HIGH]
+init_position = [0.4, 0.3, z_high]
+position = [0.4, 0.3, z_high]
 
-def movePiece(cobot, currentPosition, nextPosition):
-    cobot.move_robot(currentPosition, z_HIGH)
+def move_piece(cobot, current_position, next_position):
+    cobot.move_robot(current_position, z_high)
     time.sleep(5)
-    cobot.move_robot(currentPosition, z_LOW)
+    cobot.move_robot(current_position, z_low)
     time.sleep(5)
-    cobot.closeGripper()
+    cobot.close_gripper()
     time.sleep(5)
-    cobot.move_robot(currentPosition, z_HIGH)
+    cobot.move_robot(current_position, z_high)
     time.sleep(5)
-    cobot.move_robot(nextPosition, z_HIGH)
+    cobot.move_robot(next_position, z_high)
     time.sleep(5)
-    cobot.move_robot(nextPosition, z_LOW)
+    cobot.move_robot(next_position, z_low)
     time.sleep(5)
-    cobot.openGripper()
+    cobot.open_gripper()
     time.sleep(5)
-    cobot.move_robot(nextPosition, z_HIGH)
+    cobot.move_robot(next_position, z_high)
     global position
-    position = [nextPosition[0], nextPosition[1], z_HIGH]
+    position = [next_position[0], next_position[1], z_high]
 
-def areChessboardsEqual(chess, newBoard):
-    return chess.areChessboardsEqual(newBoard)
+def are_chessboards_equal(chess, new_board):
+    return chess.are_chessboards_equal(new_board)
 
-def findMoveMade(chess, newBoard):
-    return not(chess.areChessboardsEqual(newBoard))
+def is_move_valid(chess, move):
+    return chess.is_move_valid(move)
 
-def isMoveValid(chess, move):
-    return chess.isMoveValid(move)
+def find_best_move(chess):
+    return chess.find_best_move()
 
-def bestMove(chess):
-    return chess.findBestMove()
+def update_board(chess, move):
+    chess.move(move)
 
-def updateBoard(chess, move):
-    chess.move (move)
+def is_game_over(chess):
+    return chess.is_game_over()
 
-def isGameOver(chess):
-    return chess.isGameOver()
+def is_capture(chess, move):
+    return chess.is_move_capture(move)
 
-def isCapture(chess, move):
-    return chess.isMoveCapture(move)
+def is_castle(chess, move):
+    return chess.is_move_castle(move)
 
-def isCastle(chess, move):
-    return chess.isMoveCastle(move)
+def is_promotion(chess, move):
+    return chess.is_move_promotion(move)
 
-def isPromotion(chess, move):
-    return chess.isMovePromotion(move)
-
-def printGameOver(chess):
+def print_game_over(chess):
     print('GAME OVER')
     print("Reason for game over:")
     if chess.board.is_checkmate():
@@ -74,7 +71,7 @@ def printGameOver(chess):
         print("Stalemate")
     elif chess.board.is_insufficient_material():
         print("Insufficient material")
-    elif chess.board.is_seventyfive_moves():
+    elif chess.board.is_seventy_five_moves():
         print("75-move rule")
     elif chess.board.is_fivefold_repetition():
         print("Fivefold repetition")
@@ -88,10 +85,10 @@ def printGameOver(chess):
     elif result == "1/2-1/2":
         print("It's a draw.")
 
-def stopRobot(cobot):
-    cobot.move_robot(POSITION, z_HIGH)
-    cobot.move_robot(INIT_POSITION, z_HIGH)
-    cobot.stopRobot()
+def stop_robot(cobot):
+    cobot.move_robot(position, z_high)
+    cobot.move_robot(init_position, z_high)
+    cobot.stop_robot()
 
 
 if __name__ == "__main__":
@@ -128,15 +125,15 @@ if __name__ == "__main__":
     k = 0
 
     ##EXAMPLE
-    auxBoard = [ ## person WHITE, robot BLACK
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", ## person: e2e4, robot: c7c5
-        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1", ## person: g1f3, robot: b8c6
-        "r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1", ## person: f1b5, robot: g7g6
-        "r1bqkbnr/pp1ppp1p/2n3p1/1Bp5/4P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 0 1" ## person: b1c3, robot: f8g7
+    aux_board = [  ## person WHITE, robot BLACK
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",  ## person: e2e4, robot: c7c5
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1",  ## person: g1f3, robot: b8c6
+        "r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1",  ## person: f1b5, robot: g7g6
+        "r1bqkbnr/pp1ppp1p/2n3p1/1Bp5/4P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 0 1"  ## person: b1c3, robot: f8g7
     ]
 
     while True:
-        if i%2 == 0:
+        if i % 2 == 0:
             ## juega persona
             ## ESTO VA A SER BORRADO DESPUES, ES PARA MOCKEAR LOS MOVIMIENTOS DE LA PERSONA
             print("juega persona")
@@ -145,59 +142,55 @@ if __name__ == "__main__":
             continue
         print("juega robot")
 
-        ## deteccion de piezas
-        ## ESTA VARIABLE TIENE QUE SER REMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
-        newBoard = auxBoard[j]
+        ## detección de piezas
+        ## ESTA VARIABLE TIENE QUE SER REEMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
+        new_board = aux_board[j]
 
-        isChessboardEqual, move = areChessboardsEqual(chess, newBoard)
-        print('isChessboardEqual', isChessboardEqual)
+        is_chessboard_equal, move = are_chessboards_equal(chess, new_board)
+        print('is_chessboard_equal', is_chessboard_equal)
         print('move', move)
 
-        if not isChessboardEqual:
-            if not isMoveValid(chess, move):
-                print('INVALID MOVE, STOPPING ROBOT')
-                print(move)
-                # stopRobot(cobot)
+        if not is_chessboard_equal:
+            if not is_move_valid(chess, move):
+                print('INVALID MOVE, STOPPING ROBOT: ', move)
+                # stop_robot(cobot)
                 break
             else:
-                print('valid move')
-                updateBoard(chess, move) # update MY board
-                print('board updated')
-
-                chess.printBoard()
+                update_board(chess, move)  # update MY board
+                chess.print_board()
 
                 # check checkmate or draw
-                if isGameOver(chess):
-                    printGameOver(chess)
+                if is_game_over(chess):
+                    print_game_over(chess)
                     break
                 # check best move
-                best_move = bestMove(chess)
+                best_move = find_best_move(chess)
                 print('best_move', best_move)
 
-                if isMoveValid(chess, best_move):
+                if is_move_valid(chess, best_move):
 
-                    if isCapture(chess, best_move):
+                    if is_capture(chess, best_move):
                         print('capture')
                         ##move other piece first
-                        ##movePiece(cobot, [], [])
+                        ##move_piece(cobot, [], [])
 
                     ##move piece
-                    ##movePiece(cobot, [], [])
+                    ##move_piece(cobot, [], [])
 
-                    if isPromotion(chess, best_move):
+                    if is_promotion(chess, best_move):
                         print('promotion')
                         ##takes pawn out of the board
-                        ##movePiece(cobot, [], [])
+                        ##move_piece(cobot, [], [])
                         ##brings queen back from outside the board
-                        ##movePiece(cobot, [], [])
+                        ##move_piece(cobot, [], [])
 
-                    if isCastle(chess, best_move):
+                    if is_castle(chess, best_move):
                         print('castle')
                         ##move rook to new position
-                        ##movePiece(cobot, [], [])
+                        ##move_piece(cobot, [], [])
 
-                    updateBoard(chess, best_move)
-                    chess.printBoard()
+                    update_board(chess, best_move)
+                    chess.print_board()
                 else:
                     print('invalid move made by stockfish')
         else:
