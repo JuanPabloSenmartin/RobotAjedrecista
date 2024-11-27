@@ -1,4 +1,10 @@
-opencv-python
-numpy
-urx
-pyyaml
+opencv-python~=4.10.0.84
+numpy~=1.24.1
+urx~=0.11.0
+pyyaml~=6.0.1
+chess~=1.11.1
+keyboard~=0.13.5
+math3d~=4.0.0
+ipython~=8.17.2
+setuptools~=65.5.0
+stockfish~=3.28.0
