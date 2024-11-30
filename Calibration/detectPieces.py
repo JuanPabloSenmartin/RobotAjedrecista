@@ -29,7 +29,7 @@ cv.namedWindow('img1') # Create Window
 cv.createTrackbar('threshold', 'img1', 80, 255, on_trackbar) # Create trackbar for threshold
 cv.createTrackbar('denoise', 'img1', 7, 50, on_trackbar) # Create trackbar for denoise
 cv.createTrackbar('minArea', 'img1', 450, 10000, on_trackbar) # Create trackbars for area
-cv.createTrackbar('maxArea', 'img1', 95000, 99999, on_trackbar)
+cv.createTrackbar('maxArea', 'img1', 95000, 99999, on_trackbar) # Create trackbars for area
 
 saved_contours = []
 biggest_contour = None
@@ -54,7 +54,17 @@ while True:
     predicted_labels = []
 
     for contour in filtered_contours:   
-        cv.drawContours(flip_frame, [contour], -1, (0, 0, 255), 5) # If it doesnt match any shape, paint contour in red
+        cv.drawContours(flip_frame, [contour], -1, (0, 0, 255), 5) 
+
+        # Calcular momentos del contorno
+        M = cv.moments(contour)
+
+        # Calcular centroide
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+            # Dibujar el centroide
+            cv.circle(flip_frame, (cx, cy), 5, (255, 0, 0), -1)
  
     cv.imshow('img1', flip_frame) # Show image
 
