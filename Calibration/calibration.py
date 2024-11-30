@@ -24,8 +24,8 @@ criteria  = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 chessBoard = (9,6)
 # chessboard 3D points
-chessboardPointCloud3D = np.zeros((chessBoard[0]*chessBoard[1],3), np.float32)
-chessboardPointCloud3D[:,:2] = np.mgrid[0:chessBoard[0],0:chessBoard[1]].T.reshape(-1,2)
+chessboardPointCloud3D = np.zeros((chessBoard[0]*chessBoard[1],3), np.float32)              # No se para que esta esto.
+chessboardPointCloud3D[:,:2] = np.mgrid[0:chessBoard[0],0:chessBoard[1]].T.reshape(-1,2)    # No se para que esta esto.
 
 imgPoints = []
 objPoints = []
@@ -47,7 +47,7 @@ imBlack = np.zeros(newSize[::-1]+(3,), dtype=np.uint8)
 while True:
     ret, im = cam.read()
     if ret:
-        imLowRes = cv.resize(im, newSize)
+        imLowRes = cv.resize(im, newSize)                                                   # Para que lo ponermos en loRes ? Es por rendimiento ? En normal se ve mejor
         imGrayLowRes = cv.cvtColor(imLowRes, cv.COLOR_BGR2GRAY)
         ret, corners = cv.findChessboardCorners(imGrayLowRes, chessBoard, None)
         if ret:
