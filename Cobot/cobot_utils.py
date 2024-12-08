@@ -58,16 +58,26 @@ class Cobot:
             command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.5, -1.9, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={t:.2f})\n"
         self.cobot.send(command.encode('utf-8'))
         print(f"Command sent: {command}")
+        time.sleep(4)
 
     def openGripper(self):
         # self.cobot.send(str(self.gripper.gripper_action(self.GRIPPER_SEMI_CLOSED)).encode('utf-8'))
-        self.gripper.gripper_action(self.GRIPPER_SEMI_CLOSED)
+        # self.gripper.gripper_action(self.GRIPPER_OPEN)
+        self.gripper.open_gripper()
         time.sleep(3)
 
     def closeGripper(self):
         # self.cobot.send(str(self.gripper.gripper_action(self.GRIPPER_CLOSED)).encode('utf-8'))
-        self.gripper.gripper_action(self.GRIPPER_CLOSED)
-        time.sleep(3)
+        # self.gripper.gripper_action(50)
+        self.gripper.close_gripper()
+        time.sleep(2)
+
+    def semiOpenGripper(self):
+        self.gripper.gripper_action(120)
+        time.sleep(2)
+
+    def semiOpenGripper2(self, val):
+        self.gripper.gripper_action(val)
 
     def stopRobot(self):
         self.cobot.close()
