@@ -21,6 +21,79 @@ class Chess:
         self.stockfish.set_fen_position(self.board.fen())
         return self.stockfish.get_best_move()
 
+    def get_piece(self, square: str):
+        """
+        Returns the type of the piece at the given square.
+
+        Args:
+            square (str): The square in algebraic notation (e.g., 'e1').
+
+        Returns:
+            chess.PieceType: The type of the piece (e.g., chess.PAWN, chess.KING) or None if the square is empty.
+        """
+        # Convert the square from algebraic notation to a board index
+        square_index = chess.parse_square(square)
+
+        # Get the piece at the given square
+        piece = self.board.piece_at(square_index)
+
+        # Return the piece type (e.g., chess.PAWN) or None if no piece is present
+        return piece.piece_type if piece else None
+
+    def get_castling_rook_positions(self, move: str) -> (str, str):
+        """
+        Returns the rook's initial and final positions for a given castling move.
+
+        Args:
+            move (str): The castling move in UCI format (e.g., 'e1g1' for kingside castling).
+
+        Returns:
+            tuple: A tuple containing:
+                - initial_rook_position (str): The initial square of the rook (e.g., 'h1').
+                - final_rook_position (str): The destination square of the rook (e.g., 'f1').
+        """
+        # Parse the move into a chess.Move object
+        chess_move = chess.Move.from_uci(move)
+
+        # Ensure the move is castling
+        king_start_square = chess_move.from_square
+        king_end_square = chess_move.to_square
+
+        # Determine rook positions based on castling direction
+        if king_start_square == chess.E1:  # White castling
+            if king_end_square == chess.G1:  # Kingside
+                return 'h1', 'f1'
+            elif king_end_square == chess.C1:  # Queenside
+                return 'a1', 'd1'
+        elif king_start_square == chess.E8:  # Black castling
+            if king_end_square == chess.G8:  # Kingside
+                return 'h8', 'f8'
+            elif king_end_square == chess.C8:  # Queenside
+                return 'a8', 'd8'
+
+        raise ValueError("The provided move is not a valid castling move.")
+
+    def get_move_squares(self, move: str) -> (str, str):
+        """
+        Extracts the to_square and from_square from a UCI move string.
+
+        Args:
+            move (str): The move in UCI format (e.g., 'e1e3').
+
+        Returns:
+            tuple: A tuple containing:
+                - from_square (str): The starting square of the move (e.g., 'e1').
+                - to_square (str): The destination square of the move (e.g., 'e3').
+        """
+        # Parse the move into a chess.Move object
+        chess_move = chess.Move.from_uci(move)
+
+        # Convert the from_square and to_square to algebraic notation
+        from_square = chess.square_name(chess_move.from_square)
+        to_square = chess.square_name(chess_move.to_square)
+
+        return from_square, to_square
+
     def is_move_castle(self, move: str) -> bool:
         """
         Checks if the given move is a castling move.
@@ -83,6 +156,34 @@ class Chess:
             return True
 
         return False
+
+    def is_move_en_passant(self, move: str) -> (bool, str):
+        """
+        Checks if the given move is an en passant capture.
+
+        Args:
+            move (str): The move in UCI format (e.g., 'e5d6').
+
+        Returns:
+            tuple:
+                - bool: True if the move is an en passant capture, False otherwise.
+                - str: The position of the taken piece in algebraic notation (e.g., 'e5'), or None if not en passant.
+        """
+        # Parse the move into a chess.Move object
+        chess_move = chess.Move.from_uci(move)
+
+        # Ensure the move is legal
+        if chess_move not in self.board.legal_moves:
+            raise ValueError(f"Invalid move: {move}")
+
+        # Check if the move is en passant
+        if self.board.is_en_passant(chess_move):
+            # The captured pawn is on the square behind the destination of the move
+            captured_square = chess_move.to_square + (-8 if self.board.turn else 8)
+            captured_position = chess.square_name(captured_square)
+            return True, captured_position
+
+        return False, None
 
     def is_move_capture(self, move: str) -> bool:
         """
@@ -171,5 +272,6 @@ class Chess:
 
         return self.occupied
 
-    def move(self, move):
+    def update_board(self, move):
         self.board.push(chess.Move.from_uci(move))
+
