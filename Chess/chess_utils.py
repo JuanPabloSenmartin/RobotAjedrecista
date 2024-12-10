@@ -1,6 +1,5 @@
 import chess
 import chess.engine
-import numpy as np
 from stockfish import Stockfish
 
 class Chess:
@@ -10,6 +9,9 @@ class Chess:
 
     def is_move_valid(self, move):
         return self.board.is_legal(chess.Move.from_uci(move))
+
+    def update_board(self, move):
+        self.board.push(chess.Move.from_uci(move))
 
     def is_game_over(self):
         return self.board.is_game_over()
@@ -271,7 +273,3 @@ class Chess:
             self.occupied = 1
 
         return self.occupied
-
-    def update_board(self, move):
-        self.board.push(chess.Move.from_uci(move))
-

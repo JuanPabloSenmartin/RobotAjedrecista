@@ -91,8 +91,8 @@ def generate_outside_positions():
     init_x = limit_x_down + (dif/2)
     y = limit_y_left + (dif / 2)
     x = init_x
-    for i in range(4):
-        for j in range(4):
+    for l in range(4):
+        for k in range(4):
             outside_positions.append([x, y, False])
             x += dif
         y += dif
