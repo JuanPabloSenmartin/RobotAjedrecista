@@ -81,3 +81,9 @@ while True:
                         'distCoef': distCoef.tolist()
                     }, file)
                 print(f"Intrinsic matrix K and distortion coefficients saved to {output_file}")
+
+            case 'e':
+                break
+
+cam.release()
+cv.destroyAllWindows()
