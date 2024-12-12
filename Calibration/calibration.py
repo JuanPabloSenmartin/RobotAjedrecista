@@ -21,8 +21,8 @@ criteria  = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 chessBoard = (9,6)
 
 # chessboard 3D points
-chessboardPointCloud3D = np.zeros((chessBoard[0]*chessBoard[1],3), np.float32)              # No se para que esta esto.
-chessboardPointCloud3D[:,:2] = np.mgrid[0:chessBoard[0],0:chessBoard[1]].T.reshape(-1,2)    # No se para que esta esto.
+chessboardPointCloud3D = np.zeros((chessBoard[0]*chessBoard[1],3), np.float32)             
+chessboardPointCloud3D[:,:2] = np.mgrid[0:chessBoard[0],0:chessBoard[1]].T.reshape(-1,2)
 
 imgPoints = []
 objPoints = []
@@ -30,7 +30,7 @@ objPoints = []
 gradualDarkness = 0.90
 
 cam = cv.VideoCapture(1)
-# Esto no se para que esta. Creo que es para las Windows que se muestran
+
 width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
 height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)
 print("Cam resolution:", width, " x ", height)
@@ -54,7 +54,7 @@ while True:
         key = chr(key)
         match key:
             case ' ':
-                # Repite la detección en alta resolución y la registra
+                # Repeats and registers detection with high resolution
                 imGray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
                 ret, precisionCorners = cv.findChessboardCorners(imGray, chessBoard, None)
                 if ret:
@@ -63,7 +63,6 @@ while True:
                     precisionCorners = cv.cornerSubPix(imGray, precisionCorners, (11,11), (-1,-1), criteria)
                     imgPoints.append(precisionCorners)
 
-                    # Anota en baja resolución. Guarda/dibuja las cornes en una pantalla en negro
                     imBlack = cv.convertScaleAbs(imBlack, alpha=gradualDarkness, beta=0)
                     cv.drawChessboardCorners(imBlack, chessBoard, corners, ret)
                     cv.imshow("Detecciones", imBlack)
@@ -71,7 +70,7 @@ while True:
                     print(len(imgPoints), "pictures taken")
 
             case 'c':
-                # Calibra                                                                   Porque usamos im.shape[:2][::-1] ?
+                # Calibrates   
                 ret, K, distCoef, rvecs, tvecs = cv.calibrateCamera(objPoints, imgPoints, im.shape[:2][::-1], None, None, flags=cv.CALIB_ZERO_TANGENT_DIST)
                 
                 # Write K and distCoef to a YAML file
