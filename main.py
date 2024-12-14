@@ -8,8 +8,8 @@ import keyboard
 z_high = 0.12
 z_low = 0.01
 
-limit_y_left = -0.08 #valid is higher (+) than this
-limit_x_down = 0.17 #valid is higher (+) than this
+limit_y_left = 0 #valid is higher (+) than this
+limit_x_down = 0.18 #valid is higher (+) than this
 
 # init_position = [0.36, -0.04]
 # position = [0.36, -0.04]
@@ -25,20 +25,31 @@ cobot = Cobot()
 
 
 map = {
-    'e1': [0.514, -0.2535],
-    'e2': [0.465, -0.2535], #0.049
-    'e3': [0.416, -0.2535],
-    'e4': [0.367, -0.2535],
-    'e5': [0.318, -0.2535],
-    'e6': [0.269, -0.2535],
-    'e7': [0.222, -0.2535],
-    'e8': [0.171, -0.2535]
+ 'h1': [0.5876, -0.091],   'h2': [0.5368, -0.091],   'h3': [0.486, -0.091],    'h4': [0.4352, -0.091],
+ 'h5': [0.3844, -0.091],   'h6': [0.3336, -0.091],   'h7': [0.2828, -0.091],   'h8': [0.232, -0.091],
+ 'g1': [0.5876, -0.1443],  'g2': [0.5368, -0.1443],  'g3': [0.486, -0.1443],   'g4': [0.4352, -0.1443],
+ 'g5': [0.3844, -0.1443],  'g6': [0.3336, -0.1443],  'g7': [0.2828, -0.1443],  'g8': [0.232, -0.1443],
+ 'f1': [0.5876, -0.1976],  'f2': [0.5368, -0.1976],  'f3': [0.486, -0.1976],   'f4': [0.4352, -0.1976],
+ 'f5': [0.3844, -0.1976],  'f6': [0.3336, -0.1976],  'f7': [0.2828, -0.1976],  'f8': [0.232, -0.1976],
+ 'e1': [0.5876, -0.2509],  'e2': [0.5368, -0.2509],  'e3': [0.486, -0.2509],   'e4': [0.4352, -0.2509],
+ 'e5': [0.3844, -0.2509],  'e6': [0.3336, -0.2509],  'e7': [0.2828, -0.2509],  'e8': [0.232, -0.2509],
+ 'd1': [0.5876, -0.3042],  'd2': [0.5368, -0.3042],  'd3': [0.486, -0.3042],   'd4': [0.4352, -0.3042],
+ 'd5': [0.3844, -0.3042],  'd6': [0.3336, -0.3042],  'd7': [0.2828, -0.3042],  'd8': [0.232, -0.3042],
+ 'c1': [0.5876, -0.3575],  'c2': [0.5368, -0.3575],  'c3': [0.486, -0.3575],   'c4': [0.4352, -0.3575],
+ 'c5': [0.3844, -0.3575],  'c6': [0.3336, -0.3575],  'c7': [0.2828, -0.3575],  'c8': [0.232, -0.3575],
+ 'b1': [0.5876, -0.4108],  'b2': [0.5368, -0.4108],  'b3': [0.486, -0.4108],   'b4': [0.4352, -0.4108],
+ 'b5': [0.3844, -0.4108],  'b6': [0.3336, -0.4108],  'b7': [0.2828, -0.4108],  'b8': [0.232, -0.4108],
+ 'a1': [0.5876, -0.4641],  'a2': [0.5368, -0.4641],  'a3': [0.486, -0.4641],   'a4': [0.4352, -0.4641],
+ 'a5': [0.3844, -0.4641],  'a6': [0.3336, -0.4641],  'a7': [0.2828, -0.4641],  'a8': [0.232, -0.4641]
 }
+
+
+
 
 height = {
     1: 0.01, #PAWN
     2: 0.01, #KNIGHT
-    3: 0.01, #BISHOP
+    3: 0.02, #BISHOP
     4: 0.01, #ROOK
     5: 0.045, #QUEEN
     6: 0.045, #KING
@@ -59,12 +70,10 @@ def move(init_square, next_square, piece):
 def move_piece(current_position, next_position, height_z_low, drop_height=None):
     cobot.semi_open_gripper()
     cobot.move_robot(current_position, z_high)
-    # time.sleep(5)
     cobot.move_robot(current_position, height_z_low)
     cobot.close_gripper()
     cobot.move_robot(current_position, z_high)
     cobot.move_robot(next_position, z_high)
-    time.sleep(10)
     if drop_height is None:
         cobot.move_robot(next_position, height_z_low)
     else:
@@ -73,7 +82,6 @@ def move_piece(current_position, next_position, height_z_low, drop_height=None):
     cobot.semi_open_gripper()
     cobot.move_robot(next_position, z_high)
     cobot.move_robot(init_position, z_high)
-    time.sleep(10)
     global position
     position = [next_position[0], next_position[1], z_high]
 
@@ -131,8 +139,11 @@ if __name__ == "__main__":
 
     generate_outside_positions()
 
+    cobot.init_position(init_position, z_high)
 
-    # chess.board.set_fen('rnbqkbnr/4pppp/pppp4/8/3P4/2NQB3/PPP1PPPP/R3KBNR w KQkq - 0 1')
+    # move('e3', 'e3', 3)
+
+    # chess.board.set_fen('rnbqkbnr/ppppppp1/7p/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
 
     i = 0
     j = -1
@@ -144,6 +155,8 @@ if __name__ == "__main__":
         "r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1",  ## person: f1b5, robot: g7g6
         "r1bqkbnr/pp1ppp1p/2n3p1/1Bp5/4P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 0 1"  ## person: b1c3, robot: f8g7
     ]
+
+    # new = "rnbqkbnr/ppp1ppp1/7p/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1"
 
     while True:
         if i % 2 == 0:
@@ -172,9 +185,11 @@ if __name__ == "__main__":
                 # check checkmate or draw
                 if chess.is_game_over():
                     print_game_over()
+                    stop_robot()
                     break
                 # check best move
                 best_move = chess.find_best_move()
+                # best_move = 'e5d6'
                 print('best_move', best_move)
 
                 if chess.is_move_valid(best_move):
@@ -187,6 +202,7 @@ if __name__ == "__main__":
                     en_passant, captured_square = chess.is_move_en_passant(best_move)
                     if en_passant:
                         print('en passant')
+                        print('captured square', captured_square)
                         ##move other piece first
                         move(captured_square, 'OUT', chess.get_piece(captured_square))
 
@@ -205,7 +221,7 @@ if __name__ == "__main__":
                         print('castle')
                         ##move rook to new position
                         init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
-                        move(init_rook_square, next_rook_square, chess.get_piece(captured_square))
+                        move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
 
                     chess.update_board(best_move)
                     chess.print_board()

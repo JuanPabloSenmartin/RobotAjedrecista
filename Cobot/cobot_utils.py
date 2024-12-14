@@ -5,7 +5,6 @@ import numpy as np
 import urx
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
 
-
 def init_robot():
     # Conexiones IP
     HOST = "192.168.0.18"  # IP del robot
@@ -27,16 +26,30 @@ def init_gripper():
 
 
 class Cobot:
-    FIXED_VELOCITY = 0.04
-    ARBITRARY_ACCELERATION = 0.025
+    FIXED_VELOCITY = 0.07
+    ARBITRARY_ACCELERATION = 0.04
 
     GRIPPER_CLOSED = 200
     GRIPPER_SEMI_CLOSED = 100
     GRIPPER_OPEN = 0
 
     def __init__(self):
+        self.robot_actual_position = [0.514, -0.2535]
+        self.robot_actual_z = 0.12
         self.cobot = init_robot()
         self.rob, self.gripper = init_gripper()
+
+    def init_position(self, position, z):
+        # command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.22, -2.22, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={5:.2f})\n"
+        command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.89, -1.24, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={5:.2f})\n"
+        self.cobot.send(command.encode('utf-8'))
+        print(f"Command sent: {command}")
+        self.update_position(position, z)
+        time.sleep(5)
+
+    def update_position(self, position, z):
+        self.robot_actual_position = position
+        self.robot_actual_z = z
 
     # Calcula la distancia entre dos puntos
     def calculate_distance(self, x1, y1, x2, y2):
@@ -46,15 +59,31 @@ class Cobot:
     def calculate_time(self, distance, velocity):
         return distance / velocity
 
-    def move_robot(self, position, z, t=None):
-        if t is None:
-            # Enviar comando con velocidad fija y aceleración arbitraria
-            command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.5, -1.9, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f})\n"
-        else:
-            command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.5, -1.9, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={t:.2f})\n"
+    def move_robot(self, position, z):
+        time_to_travel = self.get_time_to_travel(position, z)
+        print(f"Time to travel: {time_to_travel}")
+        command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.89, -1.24, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={time_to_travel:.2f})\n"
+        # if t is None:
+        #     command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.22, -2.22, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f})\n"
+        # else:
+        #     command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.22, -2.22, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={t:.2f})\n"
         self.cobot.send(command.encode('utf-8'))
         print(f"Command sent: {command}")
-        time.sleep(4)
+        self.update_position(position, z)
+        time.sleep(time_to_travel)
+
+    def get_time_to_travel(self, position, z):
+        x1 = self.robot_actual_position[0]
+        y1 = self.robot_actual_position[1]
+        x2 = position[0]
+        y2 = position[1]
+        if x1 == x2 and y1 == y2 :
+            if z == self.robot_actual_z:
+                return 0.1
+            return 3
+        distance = self.calculate_distance(x1, y1, x2, y2)
+        time_to_travel = self.calculate_time(distance, self.FIXED_VELOCITY)
+        return time_to_travel + 1.5 if time_to_travel > 1 else 1
 
     def open_gripper(self):
         self.gripper.open_gripper()
@@ -62,11 +91,11 @@ class Cobot:
 
     def close_gripper(self):
         self.gripper.close_gripper()
-        time.sleep(2)
+        time.sleep(1)
 
     def semi_open_gripper(self):
         self.gripper.gripper_action(120)
-        time.sleep(2)
+        time.sleep(1)
 
     def semiOpenGripper2(self, val):
         self.gripper.gripper_action(val)
