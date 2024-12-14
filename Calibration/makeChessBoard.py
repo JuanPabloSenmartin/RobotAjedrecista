@@ -196,7 +196,7 @@ cv.namedWindow("Cam1", cv.WINDOW_NORMAL)
 cv.namedWindow("Cam2", cv.WINDOW_NORMAL)
 
 chessBoardSize = (7,7)
-cam = cv.VideoCapture(0)
+cam = cv.VideoCapture(1)
 
 width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
 height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)
@@ -247,10 +247,10 @@ while True:
                 # print(corners)
                 dictionary = makeChessBoard(corners)    
                 # Check if dictionary is not empty and draw polygons on the Cam2 image
-                #if dictionary:
-                    # specific_keys = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1'] Specify keys to draw
-                    # imCam2 = draw_polygons_on_image(imCam2, dictionary) Dibujar los cuadrados en la imagen para asegurarse de que estan bien. 
-                # cv.imshow('Cam2', imCam2)
+                if dictionary:
+                    # specific_keys = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1'] 
+                    imCam2 = draw_polygons_on_image(imCam2, dictionary) # Dibujar los cuadrados en la imagen para asegurarse de que estan bien. 
+                cv.imshow('Cam2', imCam2)
             case "c":  # Exit loop
                 break
             

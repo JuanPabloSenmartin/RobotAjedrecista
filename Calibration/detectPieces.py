@@ -24,7 +24,7 @@ def filter_contours_by_area(contours, min_area, max_area):
             filtered_contours.append(contour)
     return filtered_contours
 
-cap = cv.VideoCapture(0) # Use laptop camara
+cap = cv.VideoCapture(1)
 cv.namedWindow('img1') # Create Window
 cv.createTrackbar('threshold', 'img1', 80, 255, on_trackbar) # Create trackbar for threshold
 cv.createTrackbar('denoise', 'img1', 7, 50, on_trackbar) # Create trackbar for denoise
@@ -36,8 +36,7 @@ biggest_contour = None
 
 while True:     
     ret, frame = cap.read()
-    flip_frame = cv.flip(frame, 1) # Flip image so its correct
-    grey_frame = convert_to_color(frame=flip_frame, color=cv.COLOR_BGR2GRAY) # Convert frame to gray
+    grey_frame = convert_to_color(frame, color=cv.COLOR_BGR2GRAY) # Convert frame to gray
     
     threshold_value = get_trackbar_value('threshold', 'img1') # Grab trackbar value for threshold
     kernel_radius = get_trackbar_value('denoise', 'img1') # Grab trackbar value for denoise
@@ -54,7 +53,7 @@ while True:
     predicted_labels = []
 
     for contour in filtered_contours:   
-        cv.drawContours(flip_frame, [contour], -1, (0, 0, 255), 5) 
+        cv.drawContours(frame, [contour], -1, (0, 0, 255), 5) 
 
         # Calcular momentos del contorno
         M = cv.moments(contour)
@@ -64,9 +63,9 @@ while True:
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
             # Dibujar el centroide
-            cv.circle(flip_frame, (cx, cy), 5, (255, 0, 0), -1)
+            cv.circle(frame, (cx, cy), 5, (255, 0, 0), -1)
  
-    cv.imshow('img1', flip_frame) # Show image
+    cv.imshow('img1', frame) # Show image
 
     if cv.waitKey(1) == ord('z'): # Waits () amount of time, if the key 'z' is pressed, it stops the loop
         break
