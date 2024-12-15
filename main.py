@@ -2,6 +2,10 @@ import time
 from Chess.chess_utils import Chess
 from Cobot.cobot_utils import Cobot
 import keyboard
+import pygame
+import threading
+
+from Interface.gui import ChessGUI
 
 # z_high = 0.12
 # z_low = 0.01
@@ -21,7 +25,8 @@ outside_positions = []
 outside_position_index = 0
 
 chess = Chess()
-cobot = Cobot()
+# cobot = Cobot()
+cobot = None
 
 
 map = {
@@ -134,14 +139,21 @@ def stop_robot():
     cobot.move_robot(init_position, z_high)
     cobot.stop_robot()
 
-#-191 wirst 3
 if __name__ == "__main__":
 
     generate_outside_positions()
 
-    cobot.init_position(init_position, z_high)
+    ###################################################################
+    ##         GUI
 
-    # move('e3', 'e3', 3)
+    # gui = ChessGUI(chess.board)
+    #
+    # gui_thread = threading.Thread(target=gui.run, daemon=True)
+    # gui_thread.start()
+    ###################################################################
+
+    # cobot.init_position(init_position, z_high)
+
 
     # chess.board.set_fen('rnbqkbnr/ppppppp1/7p/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
 
@@ -158,6 +170,18 @@ if __name__ == "__main__":
 
     # new = "rnbqkbnr/ppp1ppp1/7p/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1"
 
+    # running = True
+    # while running:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             running = False
+    #     gui.draw_board()
+    #     gui.update_pieces()
+    #     pygame.display.flip()
+    #
+    # pygame.quit()
+    player_move_aux = ''
+
     while True:
         if i % 2 == 0:
             ## juega persona
@@ -165,27 +189,34 @@ if __name__ == "__main__":
             print("juega persona")
             j += 1
             i += 1
+            print('write player move')
+            player_move_aux = input().strip()
+            # print("Press enter to continue...")
+            # keyboard.wait("space")
             continue
 
         ## detección de piezas
         ## ESTA VARIABLE TIENE QUE SER REEMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
         new_board = aux_board[j]
 
-        is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
-
+        # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
+        is_chessboard_equal = False
+        person_move = player_move_aux
+        print('person_move', person_move)
         if not is_chessboard_equal:
             if not chess.is_move_valid(person_move):
                 print('INVALID MOVE, STOPPING ROBOT: ', person_move)
-                stop_robot()
+                # stop_robot()
                 break
             else:
+                i = i + 1
                 chess.update_board(person_move)  # update MY board
                 chess.print_board()
 
                 # check checkmate or draw
                 if chess.is_game_over():
                     print_game_over()
-                    stop_robot()
+                    # stop_robot()
                     break
                 # check best move
                 best_move = chess.find_best_move()
@@ -197,17 +228,17 @@ if __name__ == "__main__":
                     if chess.is_move_capture(best_move):
                         print('capture')
                         ##move captured piece first
-                        move(to_square, 'OUT', chess.get_piece(to_square))
+                        # move(to_square, 'OUT', chess.get_piece(to_square))
 
                     en_passant, captured_square = chess.is_move_en_passant(best_move)
                     if en_passant:
                         print('en passant')
                         print('captured square', captured_square)
                         ##move other piece first
-                        move(captured_square, 'OUT', chess.get_piece(captured_square))
+                        # move(captured_square, 'OUT', chess.get_piece(captured_square))
 
                     ##move piece
-                    move(from_square, to_square, chess.get_piece(from_square))
+                    # move(from_square, to_square, chess.get_piece(from_square))
 
                     if chess.is_move_promotion(best_move):
                         print('promotion')
@@ -221,7 +252,7 @@ if __name__ == "__main__":
                         print('castle')
                         ##move rook to new position
                         init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
-                        move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
+                        # move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
 
                     chess.update_board(best_move)
                     chess.print_board()
@@ -229,7 +260,3 @@ if __name__ == "__main__":
                     print('invalid move made by stockfish')
         else:
             print('chessboards are equal')
-
-        print("Press enter to continue...")
-        keyboard.wait("space")
-        i = i + 1
