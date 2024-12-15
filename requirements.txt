@@ -8,3 +8,4 @@ math3d~=4.0.0
 ipython~=8.17.2
 setuptools~=65.5.0
 stockfish~=3.28.0
+pygame~=2.6.1

@@ -2,7 +2,6 @@ import time
 from Chess.chess_utils import Chess
 from Cobot.cobot_utils import Cobot
 import keyboard
-import pygame
 import threading
 
 from Interface.gui import ChessGUI
@@ -146,10 +145,9 @@ if __name__ == "__main__":
     ###################################################################
     ##         GUI
 
-    # gui = ChessGUI(chess.board)
-    #
-    # gui_thread = threading.Thread(target=gui.run, daemon=True)
-    # gui_thread.start()
+    gui = ChessGUI(chess.board)
+    gui_thread = threading.Thread(target=gui.run, daemon=True)
+    gui_thread.start()
     ###################################################################
 
     # cobot.init_position(init_position, z_high)
@@ -170,16 +168,6 @@ if __name__ == "__main__":
 
     # new = "rnbqkbnr/ppp1ppp1/7p/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1"
 
-    # running = True
-    # while running:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             running = False
-    #     gui.draw_board()
-    #     gui.update_pieces()
-    #     pygame.display.flip()
-    #
-    # pygame.quit()
     player_move_aux = ''
 
     while True:
@@ -212,6 +200,7 @@ if __name__ == "__main__":
                 i = i + 1
                 chess.update_board(person_move)  # update MY board
                 chess.print_board()
+                gui.update()
 
                 # check checkmate or draw
                 if chess.is_game_over():
@@ -256,6 +245,7 @@ if __name__ == "__main__":
 
                     chess.update_board(best_move)
                     chess.print_board()
+                    gui.update()
                 else:
                     print('invalid move made by stockfish')
         else:

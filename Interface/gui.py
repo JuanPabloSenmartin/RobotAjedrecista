@@ -33,6 +33,7 @@ class ChessGUI:
         pygame.display.set_caption("Chess GUI")
         self.draw_board()
         self.update_pieces()
+        pygame.display.flip()
 
     def draw_board(self):
         for row in range(8):
@@ -65,7 +66,9 @@ class ChessGUI:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-            self.draw_board()
-            self.update_pieces()
-            pygame.display.flip()
         pygame.quit()
+
+    def update(self):
+        self.draw_board()
+        self.update_pieces()
+        pygame.display.flip()
