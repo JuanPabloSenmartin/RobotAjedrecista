@@ -26,8 +26,8 @@ def init_gripper():
 
 
 class Cobot:
-    FIXED_VELOCITY = 0.07
-    ARBITRARY_ACCELERATION = 0.04
+    FIXED_VELOCITY = 0.1
+    ARBITRARY_ACCELERATION = 0.06
 
     GRIPPER_CLOSED = 200
     GRIPPER_SEMI_CLOSED = 100
@@ -41,11 +41,11 @@ class Cobot:
 
     def init_position(self, position, z):
         # command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.22, -2.22, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={5:.2f})\n"
-        command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.89, -1.24, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={5:.2f})\n"
+        command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.89, -1.24, 0], a={self.ARBITRARY_ACCELERATION:.2f}, v={self.FIXED_VELOCITY:.2f}, t={4:.2f})\n"
         self.cobot.send(command.encode('utf-8'))
         print(f"Command sent: {command}")
         self.update_position(position, z)
-        time.sleep(5)
+        time.sleep(4)
 
     def update_position(self, position, z):
         self.robot_actual_position = position
@@ -80,10 +80,10 @@ class Cobot:
         if x1 == x2 and y1 == y2 :
             if z == self.robot_actual_z:
                 return 0.1
-            return 3
+            return 2
         distance = self.calculate_distance(x1, y1, x2, y2)
         time_to_travel = self.calculate_time(distance, self.FIXED_VELOCITY)
-        return time_to_travel + 1.5 if time_to_travel > 1 else 1
+        return time_to_travel + 1 if time_to_travel > 1 else 1
 
     def open_gripper(self):
         self.gripper.open_gripper()

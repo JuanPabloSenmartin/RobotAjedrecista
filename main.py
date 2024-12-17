@@ -6,8 +6,6 @@ import threading
 
 from Interface.gui import ChessGUI
 
-# z_high = 0.12
-# z_low = 0.01
 z_high = 0.12
 z_low = 0.01
 
@@ -16,36 +14,38 @@ limit_x_down = 0.18 #valid is higher (+) than this
 
 # init_position = [0.36, -0.04]
 # position = [0.36, -0.04]
-init_position = [0.514, -0.2535]
-position = [0.514, -0.2535]
+# init_position = [0.514, -0.2535]
+# position = [0.514, -0.2535]
+init_position = [0.047, -0.25]
 
 # [x,y,isOccupied]
 outside_positions = []
 outside_position_index = 0
 
 chess = Chess()
-# cobot = Cobot()
-cobot = None
+cobot = Cobot()
 
 
 map = {
- 'h1': [0.5876, -0.091],   'h2': [0.5368, -0.091],   'h3': [0.486, -0.091],    'h4': [0.4352, -0.091],
- 'h5': [0.3844, -0.091],   'h6': [0.3336, -0.091],   'h7': [0.2828, -0.091],   'h8': [0.232, -0.091],
- 'g1': [0.5876, -0.1443],  'g2': [0.5368, -0.1443],  'g3': [0.486, -0.1443],   'g4': [0.4352, -0.1443],
- 'g5': [0.3844, -0.1443],  'g6': [0.3336, -0.1443],  'g7': [0.2828, -0.1443],  'g8': [0.232, -0.1443],
- 'f1': [0.5876, -0.1976],  'f2': [0.5368, -0.1976],  'f3': [0.486, -0.1976],   'f4': [0.4352, -0.1976],
- 'f5': [0.3844, -0.1976],  'f6': [0.3336, -0.1976],  'f7': [0.2828, -0.1976],  'f8': [0.232, -0.1976],
- 'e1': [0.5876, -0.2509],  'e2': [0.5368, -0.2509],  'e3': [0.486, -0.2509],   'e4': [0.4352, -0.2509],
- 'e5': [0.3844, -0.2509],  'e6': [0.3336, -0.2509],  'e7': [0.2828, -0.2509],  'e8': [0.232, -0.2509],
- 'd1': [0.5876, -0.3042],  'd2': [0.5368, -0.3042],  'd3': [0.486, -0.3042],   'd4': [0.4352, -0.3042],
- 'd5': [0.3844, -0.3042],  'd6': [0.3336, -0.3042],  'd7': [0.2828, -0.3042],  'd8': [0.232, -0.3042],
- 'c1': [0.5876, -0.3575],  'c2': [0.5368, -0.3575],  'c3': [0.486, -0.3575],   'c4': [0.4352, -0.3575],
- 'c5': [0.3844, -0.3575],  'c6': [0.3336, -0.3575],  'c7': [0.2828, -0.3575],  'c8': [0.232, -0.3575],
- 'b1': [0.5876, -0.4108],  'b2': [0.5368, -0.4108],  'b3': [0.486, -0.4108],   'b4': [0.4352, -0.4108],
- 'b5': [0.3844, -0.4108],  'b6': [0.3336, -0.4108],  'b7': [0.2828, -0.4108],  'b8': [0.232, -0.4108],
- 'a1': [0.5876, -0.4641],  'a2': [0.5368, -0.4641],  'a3': [0.486, -0.4641],   'a4': [0.4352, -0.4641],
- 'a5': [0.3844, -0.4641],  'a6': [0.3336, -0.4641],  'a7': [0.2828, -0.4641],  'a8': [0.232, -0.4641]
+ 'h1': [0.5076, -0.091],   'h2': [0.4568, -0.091],   'h3': [0.406, -0.091],    'h4': [0.3552, -0.091],
+ 'h5': [0.3044, -0.091],   'h6': [0.2536, -0.091],   'h7': [0.2028, -0.091],   'h8': [0.152, -0.091],
+ 'g1': [0.5076, -0.1443],  'g2': [0.4568, -0.1443],  'g3': [0.406, -0.1443],   'g4': [0.3552, -0.1443],
+ 'g5': [0.3044, -0.1443],  'g6': [0.2536, -0.1443],  'g7': [0.2028, -0.1443],  'g8': [0.152, -0.1443],
+ 'f1': [0.5076, -0.1976],  'f2': [0.4568, -0.1976],  'f3': [0.406, -0.1976],   'f4': [0.3552, -0.1976],
+ 'f5': [0.3044, -0.1976],  'f6': [0.2536, -0.1976],  'f7': [0.2028, -0.1976],  'f8': [0.152, -0.1976],
+ 'e1': [0.5076, -0.2509],  'e2': [0.4568, -0.2509],  'e3': [0.406, -0.2509],   'e4': [0.3552, -0.2509],
+ 'e5': [0.3044, -0.2509],  'e6': [0.2536, -0.2509],  'e7': [0.2028, -0.2509],  'e8': [0.152, -0.2509],
+ 'd1': [0.5076, -0.3042],  'd2': [0.4568, -0.3042],  'd3': [0.406, -0.3042],   'd4': [0.3552, -0.3042],
+ 'd5': [0.3044, -0.3042],  'd6': [0.2536, -0.3042],  'd7': [0.2028, -0.3042],  'd8': [0.152, -0.3042],
+ 'c1': [0.5076, -0.3575],  'c2': [0.4568, -0.3575],  'c3': [0.406, -0.3575],   'c4': [0.3552, -0.3575],
+ 'c5': [0.3044, -0.3575],  'c6': [0.2536, -0.3575],  'c7': [0.2028, -0.3575],  'c8': [0.152, -0.3575],
+ 'b1': [0.5076, -0.4108],  'b2': [0.4568, -0.4108],  'b3': [0.406, -0.4108],   'b4': [0.3552, -0.4108],
+ 'b5': [0.3044, -0.4108],  'b6': [0.2536, -0.4108],  'b7': [0.2028, -0.4108],  'b8': [0.152, -0.4108],
+ 'a1': [0.5076, -0.4641],  'a2': [0.4568, -0.4641],  'a3': [0.406, -0.4641],   'a4': [0.3552, -0.4641],
+ 'a5': [0.3044, -0.4641],  'a6': [0.2536, -0.4641],  'a7': [0.2028, -0.4641],  'a8': [0.152, -0.4641]
 }
+
+
 
 
 
@@ -59,19 +59,19 @@ height = {
     6: 0.045, #KING
 }
 
-def move(init_square, next_square, piece):
+def move(init_square, next_square, piece, only=True):
     init_pos = map.get(init_square)
     piece_height = height.get(piece)
     if next_square == 'OUT':
         next_pos = get_free_outside_position()
-        drop_height = piece_height - 0.01
+        drop_height = piece_height - 0.005
     else:
         next_pos = map.get(next_square)
         drop_height = None
 
-    move_piece(init_pos, next_pos, piece_height, drop_height)
+    move_piece(init_pos, next_pos, piece_height, drop_height, only)
 
-def move_piece(current_position, next_position, height_z_low, drop_height=None):
+def move_piece(current_position, next_position, height_z_low, drop_height=None, only=True):
     cobot.semi_open_gripper()
     cobot.move_robot(current_position, z_high)
     cobot.move_robot(current_position, height_z_low)
@@ -85,9 +85,8 @@ def move_piece(current_position, next_position, height_z_low, drop_height=None):
     # cobot.semiOpenGripper2(150)
     cobot.semi_open_gripper()
     cobot.move_robot(next_position, z_high)
-    cobot.move_robot(init_position, z_high)
-    global position
-    position = [next_position[0], next_position[1], z_high]
+    if only:
+        cobot.move_robot(init_position, z_high)
 
 def get_free_outside_position():
     global outside_positions
@@ -134,7 +133,6 @@ def print_game_over():
         print("It's a draw.")
 
 def stop_robot():
-    cobot.move_robot(position, z_high)
     cobot.move_robot(init_position, z_high)
     cobot.stop_robot()
 
@@ -150,7 +148,7 @@ if __name__ == "__main__":
     gui_thread.start()
     ###################################################################
 
-    # cobot.init_position(init_position, z_high)
+    cobot.init_position(init_position, z_high)
 
 
     # chess.board.set_fen('rnbqkbnr/ppppppp1/7p/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
@@ -185,7 +183,7 @@ if __name__ == "__main__":
 
         ## detección de piezas
         ## ESTA VARIABLE TIENE QUE SER REEMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
-        new_board = aux_board[j]
+        # new_board = aux_board[j]
 
         # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
         is_chessboard_equal = False
@@ -194,42 +192,45 @@ if __name__ == "__main__":
         if not is_chessboard_equal:
             if not chess.is_move_valid(person_move):
                 print('INVALID MOVE, STOPPING ROBOT: ', person_move)
-                # stop_robot()
+                stop_robot()
                 break
             else:
                 i = i + 1
                 chess.update_board(person_move)  # update MY board
-                chess.print_board()
                 gui.update()
 
                 # check checkmate or draw
                 if chess.is_game_over():
                     print_game_over()
-                    # stop_robot()
+                    stop_robot()
                     break
                 # check best move
                 best_move = chess.find_best_move()
-                # best_move = 'e5d6'
                 print('best_move', best_move)
 
                 if chess.is_move_valid(best_move):
                     from_square, to_square = chess.get_move_squares(best_move)
-                    if chess.is_move_capture(best_move):
+
+                    is_capture = chess.is_move_capture(best_move)
+                    is_en_passant, captured_square = chess.is_move_en_passant(best_move)
+                    is_promotion = chess.is_move_promotion(best_move)
+                    is_castle = chess.is_move_castle(best_move)
+
+                    if is_capture:
                         print('capture')
                         ##move captured piece first
-                        # move(to_square, 'OUT', chess.get_piece(to_square))
+                        move(to_square, 'OUT', chess.get_piece(to_square), False)
 
-                    en_passant, captured_square = chess.is_move_en_passant(best_move)
-                    if en_passant:
+                    if is_en_passant:
                         print('en passant')
-                        print('captured square', captured_square)
                         ##move other piece first
-                        # move(captured_square, 'OUT', chess.get_piece(captured_square))
+                        move(captured_square, 'OUT', chess.get_piece(captured_square), False)
 
                     ##move piece
-                    # move(from_square, to_square, chess.get_piece(from_square))
+                    is_only = not(is_castle or is_promotion)
+                    move(from_square, to_square, chess.get_piece(from_square), is_only)
 
-                    if chess.is_move_promotion(best_move):
+                    if is_promotion:
                         print('promotion')
                         ## TODO: Implement promotion logic
                         ##takes pawn out of the board
@@ -237,14 +238,13 @@ if __name__ == "__main__":
                         ##brings queen back from outside the board
                         ##move()
 
-                    if chess.is_move_castle(best_move):
+                    if is_castle:
                         print('castle')
                         ##move rook to new position
                         init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
-                        # move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
+                        move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
 
                     chess.update_board(best_move)
-                    chess.print_board()
                     gui.update()
                 else:
                     print('invalid move made by stockfish')
