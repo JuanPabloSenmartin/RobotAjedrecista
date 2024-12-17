@@ -22,6 +22,8 @@ def guardar_imagen(frame, carpeta='fotos'):
     print(f"Imagen guardada en: {ruta_completa}")
     return ruta_completa
 
+img_pts = np.zeros((4, 2), dtype="float32")
+
 def get_chessboard_corners(saved_corners):
 
     corner_0 = saved_corners[0][0]
@@ -50,14 +52,15 @@ def get_chessboard_corners(saved_corners):
         [lower_right_corner[0] + h[0] + v[0], lower_right_corner[1] + h[1] + v[1]]   # esquina inferior derecha
     ], dtype="float32")
 
+    print(str(img_pts))
     return img_pts
 
 # Coordinates in robot system
 robot_pts = np.array([
-    [4, 55],  # esquina superior izquierda
-    [-8, 55],  # esquina superior derecha
-    [-8, 35.8],   # esquina inferior izquierda
-    [4, 35.8]  # esquina inferior derecha
+    [126, -475],  # esquina superior izquierda
+    [130, -78],  # esquina superior derecha
+    [525, -478],   # esquina inferior izquierda
+    [528, -84]  # esquina inferior derecha
 ], dtype="float32")
 
 # ------------------------- Primary loop ------------------------- #
@@ -92,11 +95,16 @@ while True:
                 undistorted_img = cv.undistort(im, K, distCoef)
                 guardar_imagen(undistorted_img)                 # For debuging
                 ret_2, undisorted_corners = cv.findChessboardCorners(undistorted_img, chessBoard, None)
-                if ret_2:
-                    img_pts = get_chessboard_corners(corners)
+                img_pts = get_chessboard_corners(corners)
             case 'm':
-                if img_pts:
-                    matrix = cv.getPerspectiveTransform(img_pts, robot_pts)
+                matrix = cv.getPerspectiveTransform(img_pts, robot_pts)
+                # Write K and distCoef to a YAML file
+                output_file = 'transformation_matrix.yaml'
+                with open(output_file, 'w') as file:
+                    yaml.dump({
+                        'matrix': matrix.tolist()
+                    }, file)
+                print(f"Matrix saved to {output_file}")
             case 'e':
                 break
 

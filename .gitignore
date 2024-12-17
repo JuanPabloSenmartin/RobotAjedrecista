@@ -5,3 +5,7 @@
 /Calibration/imagen_anterior.png
 
 .idea
+
+/Calibration/transformation_matrix.yaml
+/Calibration/intrinsic_parameters.yaml
+app.py
