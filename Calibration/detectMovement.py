@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+UMBRAL_CAMBIO = 2
+
 # Cargar imágenes
 imagen_anterior = cv2.imread('imagen_anterior.png')
 imagen_actual = cv2.imread('imagen_actual.png')
@@ -38,16 +40,26 @@ def diferencia_color(casilla1, casilla2):
     # Convertir a espacio de color RGB
     casilla1_rgb = cv2.cvtColor(casilla1, cv2.COLOR_BGR2RGB)
     casilla2_rgb = cv2.cvtColor(casilla2, cv2.COLOR_BGR2RGB)
+    
     # Calcular la diferencia absoluta
     diferencia = cv2.absdiff(casilla1_rgb, casilla2_rgb)
+    
     # Calcular la suma de diferencias
     suma_diferencia = np.sum(diferencia)
-    return suma_diferencia
+    
+    # Calcular la media de la intensidad de píxeles
+    mean1 = np.mean(casilla1_rgb)
+    mean2 = np.mean(casilla2_rgb)
+    
+    # Determinar el cambio de intensidad
+    cambio = mean2 - mean1  # Positivo: aumento de intensidad (posible adición), Negativo: disminución (posible remoción)
+    
+    return suma_diferencia, cambio
 
 diferencias = []
 for i in range(64):
-    diff = diferencia_color(casillas_anterior[i], casillas_actual[i])
-    diferencias.append((i, diff))
+    diff, cambio = diferencia_color(casillas_anterior[i], casillas_actual[i])
+    diferencias.append((i, diff, cambio))
 
 # Ordenar las diferencias de mayor a menor
 diferencias_ordenadas = sorted(diferencias, key=lambda x: x[1], reverse=True)
@@ -55,7 +67,10 @@ diferencias_ordenadas = sorted(diferencias, key=lambda x: x[1], reverse=True)
 # Seleccionar las cuatro casillas con mayor cambio
 casillas_cambiadas = diferencias_ordenadas[:4]
 
+diferencias_filtradas = [casilla for casilla in diferencias if abs(casilla[2]) > UMBRAL_CAMBIO]
+
 print(str(casillas_cambiadas))
+print(str(diferencias_filtradas))
 
 while True:
     # Mostrar cada imagen
