@@ -1,8 +1,9 @@
 import cv2 as cv
 import numpy as np
 import yaml
+import os
 
-chessBoard = {}           # key: Casillero, value: [[4 esquinas del casillero], [nombre de la pieza]]
+chessBoard = {} # key: Casillero, value: [[coordinadas sistema del robot], [nombre de la pieza]]
 robotMap = {}
 
 def find_center_np(points):
@@ -15,19 +16,27 @@ def find_center_np(points):
     # Reshape to (1, 1, 2) for cv.perspectiveTransform compatibility
     return np.array([[[center[0], center[1]]]], dtype=np.float32)
 
-# Read calibration parameters
+# Read transfomation matrix parameters
 def get_transformation_matrix() :
-    input_file = 'transformation_matrix.yaml'
+    input_file = os.path.join('parameters', 'transformation_matrix.yaml')
     with open(input_file, 'r') as file:
         data = yaml.safe_load(file)  
     matrix = np.array(data.get('matrix'))
     return matrix
 
+def get_calibration_parameters() :
+    input_file = os.path.join('parameters', 'intrinsic_parameters.yaml')
+    with open(input_file, 'r') as file:
+        data = yaml.safe_load(file)  
+    K = np.array(data.get('K'))
+    distCoef = np.array(data.get('distCoef'))
+    return K, distCoef
+
 def makeChessBoard(saved_corners): 
     
     pixelCounter = 0
 
-    matrix = get_transformation_matrix
+    matrix = get_transformation_matrix()
 
 
     corner0 = saved_corners[0][0]
@@ -58,7 +67,7 @@ def makeChessBoard(saved_corners):
                                  (lowerRightCorner[0] - h[0], lowerRightCorner[1] - h[1])]                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -74,7 +83,7 @@ def makeChessBoard(saved_corners):
                                  (lowerLeftCorner[0], lowerLeftCorner[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -88,7 +97,7 @@ def makeChessBoard(saved_corners):
                                  (lowerLeftCorner[0], lowerLeftCorner[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -103,7 +112,7 @@ def makeChessBoard(saved_corners):
                                  (upperRightCorner[0] - h[0] + v[0], upperRightCorner[1] - h[1] + v[1])]    # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
                 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -119,7 +128,7 @@ def makeChessBoard(saved_corners):
                                  (upperLeftCorner[0] + v[0], upperLeftCorner[1] + v[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -133,7 +142,7 @@ def makeChessBoard(saved_corners):
                                  (upperLeftCorner[0] + v[0], upperLeftCorner[1] + v[1])]                    # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -149,7 +158,7 @@ def makeChessBoard(saved_corners):
                                  (lowerLeftCorner[0], lowerLeftCorner[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -165,7 +174,7 @@ def makeChessBoard(saved_corners):
                                  (lowerRightCorner[0] - h[0], lowerRightCorner[1] - h[1])]                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -183,7 +192,7 @@ def makeChessBoard(saved_corners):
                                  (lowerLeftCorner[0], lowerLeftCorner[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -198,7 +207,7 @@ def makeChessBoard(saved_corners):
                                  (lowerLeftCorner[0], lowerLeftCorner[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -214,7 +223,7 @@ def makeChessBoard(saved_corners):
                                  (upperLeftCorner[0] + v[0], upperLeftCorner[1] + v[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
@@ -232,14 +241,14 @@ def makeChessBoard(saved_corners):
                                  (lowerLeftCorner[0], lowerLeftCorner[1])]                                  # Esquina inferior izq                         
                 
                 center = find_center_np(squareCorners)
-                transformed_point = cv.getPerspectiveTransform(center, matrix)
+                transformed_point = cv.perspectiveTransform(center, matrix)
                 robotMap[str(letter) + str(i)] = transformed_point
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
                 pixelCounter += 1
                 
-    return chessBoard, robotMap
+    return chessBoard
 
 def setup(initialChessBoard):
     # Place white pawns on row 2
@@ -300,7 +309,6 @@ while True:
     ret, im = cam.read()
     if ret:
         imLowRes = cv.resize(im, newSize)
-        imCam2 = imLowRes.copy()
         imGrayLowRes = cv.cvtColor(imLowRes, cv.COLOR_BGR2GRAY)
         ret, corners = cv.findChessboardCorners(imGrayLowRes, chessBoardSize, None)
         if ret:
@@ -317,22 +325,28 @@ while True:
         key = chr(key)
         match key:
             case ' ':  # Capture corners and create dictionary
-                # print(corners)
-                dictionary = makeChessBoard(corners)    
+                K, distCoef = get_calibration_parameters()
+                undistorted_img = cv.undistort(im, K, distCoef)
+                ret_2, undisorted_corners = cv.findChessboardCorners(undistorted_img, chessBoardSize, None)
+                dictionary = makeChessBoard(undisorted_corners)    
                 # Check if dictionary is not empty and draw polygons on the Cam2 image
+                imCam2 = imLowRes.copy()
+                imCam2 = cv.undistort(im, K, distCoef)
+                print(dictionary)
                 if dictionary:
                     # specific_keys = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1'] 
                     imCam2 = draw_polygons_on_image(imCam2, dictionary) # Dibujar los cuadrados en la imagen para asegurarse de que estan bien. 
                 cv.imshow('Cam2', imCam2)
+                print("///////////////////////////////////////")
                 print(str(robotMap))
-                """"
-                points_A1 = dictionary['H1'][0]
+                
+                points_A1 = dictionary['A1'][0]
                 center = find_center_np(points_A1)
                 print(center)
                 matrix = get_transformation_matrix()
                 transformed_point1 = cv.perspectiveTransform(center, matrix)
                 print(str(transformed_point1))
-                """
+                
             case "c":  # Exit loop
                 break
             

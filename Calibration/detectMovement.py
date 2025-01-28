@@ -56,21 +56,80 @@ def diferencia_color(casilla1, casilla2):
     
     return suma_diferencia, cambio
 
-diferencias = []
-for i in range(64):
-    diff, cambio = diferencia_color(casillas_anterior[i], casillas_actual[i])
-    diferencias.append((i, diff, cambio))
 
-# Ordenar las diferencias de mayor a menor
-diferencias_ordenadas = sorted(diferencias, key=lambda x: x[1], reverse=True)
+def detect_movement():
 
-# Seleccionar las cuatro casillas con mayor cambio
-casillas_cambiadas = diferencias_ordenadas[:4]
+    diferencias = []
+    for i in range(64):
+        diff, cambio = diferencia_color(casillas_anterior[i], casillas_actual[i])
+        diferencias.append((i, diff, cambio))
 
-diferencias_filtradas = [casilla for casilla in diferencias if abs(casilla[2]) > UMBRAL_CAMBIO]
+    # Ordenar las diferencias de mayor a menor
+    diferencias_ordenadas = sorted(diferencias, key=lambda x: x[1], reverse=True)
 
-print(str(casillas_cambiadas))
-print(str(diferencias_filtradas))
+    # Seleccionar las cuatro casillas con mayor cambio
+    casillas_cambiadas = diferencias_ordenadas[:4]
+
+    diferencias_filtradas = [casilla for casilla in diferencias if abs(casilla[2]) > UMBRAL_CAMBIO]
+
+    casillero_1 = diferencias_filtradas[0]
+    casillero_2 = diferencias_filtradas[1]
+    print(str(casillas_cambiadas))
+    print(str(diferencias_filtradas))
+
+def generate_fen(chess_board):
+    # Mapeo de nombres de piezas a notación FEN
+    piece_map = {
+        "WhitePawn": "P",
+        "WhiteRook": "R",
+        "WhiteKnight": "N",
+        "WhiteBishop": "B",
+        "WhiteQueen": "Q",
+        "WhiteKing": "K",
+        "BlackPawn": "p",
+        "BlackRook": "r",
+        "BlackKnight": "n",
+        "BlackBishop": "b",
+        "BlackQueen": "q",
+        "BlackKing": "k"
+    }
+    
+    fen_rows = []
+    
+    # Recorrer las filas de 8 a 1
+    for rank in range(8, 0, -1):
+        fen_row = ""
+        empty_count = 0
+        # Recorrer las columnas de A a H
+        for file in range(65, 73):  # ASCII de 'A' a 'H' son 65 a 72
+            square = f"{chr(file)}{rank}"
+            piece = chess_board.get(square, {}).get(1, None)  # Asumiendo que la pieza está en el índice 1
+            if piece:
+                if empty_count > 0:
+                    fen_row += str(empty_count)
+                    empty_count = 0
+                fen_piece = piece_map.get(piece, "")
+                fen_row += fen_piece
+            else:
+                empty_count += 1
+        if empty_count > 0:
+            fen_row += str(empty_count)
+        fen_rows.append(fen_row)
+    
+    # Unir las filas con '/'
+    piece_placement = "/".join(fen_rows)
+    
+    # Campos adicionales de FEN
+    active_color = "w"  # Suponiendo que es el turno de las blancas
+    castling = "KQkq"    # Suponiendo que ambos lados tienen todos los derechos de enroque
+    en_passant = "-"     # Sin posibilidad de captura al paso
+    halfmove_clock = "0" # Reinicio del contador de medio movimientos
+    fullmove_number = "1" # Número de movimientos completos
+    
+    # Construir la cadena FEN completa
+    fen = f"{piece_placement} {active_color} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
+    
+    return fen
 
 while True:
     # Mostrar cada imagen

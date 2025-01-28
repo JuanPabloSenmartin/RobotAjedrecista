@@ -6,6 +6,6 @@
 
 .idea
 
-/Calibration/transformation_matrix.yaml
-/Calibration/intrinsic_parameters.yaml
+/Calibration/parameters/transformation_matrix.yaml
+/Calibration/parameters/intrinsic_parameters.yaml
 app.py

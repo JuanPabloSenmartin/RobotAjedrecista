@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
-import sys
 import yaml
+import os
 
 print("""
       Usage:
@@ -74,7 +74,8 @@ while True:
                 ret, K, distCoef, rvecs, tvecs = cv.calibrateCamera(objPoints, imgPoints, im.shape[:2][::-1], None, None, flags=cv.CALIB_ZERO_TANGENT_DIST)
                 
                 # Write K and distCoef to a YAML file
-                output_file = 'intrinsic_parameters.yaml'
+                output_file = os.path.join('parameters', 'intrinsic_parameters.yaml')
+                # output_file = 'intrinsic_parameters.yaml'
                 with open(output_file, 'w') as file:
                     yaml.dump({
                         'K': K.tolist(),

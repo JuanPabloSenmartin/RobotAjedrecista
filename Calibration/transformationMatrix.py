@@ -6,7 +6,7 @@ from datetime import datetime
 
 # Read calibration parameters
 def get_calibration_parameters() :
-    input_file = 'intrinsic_parameters.yaml'
+    input_file = os.path.join('parameters', 'intrinsic_parameters.yaml')
     with open(input_file, 'r') as file:
         data = yaml.safe_load(file)  
     K = np.array(data.get('K'))
@@ -24,32 +24,19 @@ def guardar_imagen(frame, carpeta='fotos'):
 
 img_pts = np.zeros((4, 2), dtype="float32")
 
-def get_chessboard_corners(saved_corners):
-
-    corner_0 = saved_corners[0][0]
-    corner_1 = saved_corners[1][0]
-    corner_7 = saved_corners[7][0]
-
-    # Variaciones horizontal y vertical
-    h_variation_x = corner_1[0] - corner_0[0]
-    h_variation_y = corner_1[1] - corner_0[1]
-    v_variation_x = corner_7[0] - corner_0[0]
-    v_variation_y = corner_7[1] - corner_0[1]
-
-    h = [h_variation_x, h_variation_y] 
-    v = [v_variation_x, v_variation_y]
+def get_image_coordinates(saved_corners):
 
     # Cálculo de las esquinas
     upper_left_corner = saved_corners[0][0]
     upper_right_corner = saved_corners[6][0]
     lower_left_corner = saved_corners[42][0]
     lower_right_corner = saved_corners[48][0]
-
+    
     img_pts = np.array([
-        [upper_left_corner[0] - h[0] - v[0], upper_left_corner[1] - h[1] - v[1]],  # esquina superior izquierda
-        [upper_right_corner[0] + h[0] - v[0], upper_right_corner[1] + h[1] - v[1]],  # esquina superior derecha
-        [lower_left_corner[0] - h[0] + v[0], lower_left_corner[1] - h[1] + v[1]],  # esquina inferior izquierda
-        [lower_right_corner[0] + h[0] + v[0], lower_right_corner[1] + h[1] + v[1]]   # esquina inferior derecha
+        [upper_left_corner[0], upper_left_corner[1]],  # esquina superior izquierda
+        [upper_right_corner[0], upper_right_corner[1]],  # esquina superior derecha
+        [lower_left_corner[0], lower_left_corner[1]],  # esquina inferior izquierda
+        [lower_right_corner[0], lower_right_corner[1]]   # esquina inferior derecha
     ], dtype="float32")
 
     print(str(img_pts))
@@ -57,10 +44,10 @@ def get_chessboard_corners(saved_corners):
 
 # Coordinates in robot system
 robot_pts = np.array([
-    [126, -475],  # esquina superior izquierda
-    [130, -78],  # esquina superior derecha
-    [525, -478],   # esquina inferior izquierda
-    [528, -84]  # esquina inferior derecha
+    [3, 3],  # esquina superior izquierda
+    [3, 21],  # esquina superior derecha
+    [21, 3],   # esquina inferior izquierda
+    [21, 21]  # esquina inferior derecha
 ], dtype="float32")
 
 # ------------------------- Primary loop ------------------------- #
@@ -75,7 +62,7 @@ newSize = (640, int(640 * height / width))
 
 while True:
     ret, im = cam.read()
-    if ret:
+    if ret:                                                     # For testing
         imLowRes = cv.resize(im, newSize)
         imGrayLowRes = cv.cvtColor(imLowRes, cv.COLOR_BGR2GRAY)
         ret, corners = cv.findChessboardCorners(imGrayLowRes, chessBoard, None)
@@ -92,14 +79,15 @@ while True:
             case ' ':
                 K, distCoef = get_calibration_parameters()
                 imGray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+                guardar_imagen(imGray)
                 undistorted_img = cv.undistort(im, K, distCoef)
-                guardar_imagen(undistorted_img)                 # For debuging
+                guardar_imagen(undistorted_img)                 # For testing
                 ret_2, undisorted_corners = cv.findChessboardCorners(undistorted_img, chessBoard, None)
-                img_pts = get_chessboard_corners(corners)
+                img_pts = get_image_coordinates(undisorted_corners)
             case 'm':
                 matrix = cv.getPerspectiveTransform(img_pts, robot_pts)
                 # Write K and distCoef to a YAML file
-                output_file = 'transformation_matrix.yaml'
+                output_file = os.path.join('parameters', 'transformation_matrix.yaml')
                 with open(output_file, 'w') as file:
                     yaml.dump({
                         'matrix': matrix.tolist()
