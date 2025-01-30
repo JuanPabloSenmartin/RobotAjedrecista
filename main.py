@@ -243,7 +243,7 @@ if __name__ == "__main__":
                         ##move rook to new position
                         init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
                         move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
-
+                    ## AGREGAR VERIFICACION DE SI TERMINO LA PARTIDA
                     chess.update_board(best_move)
                     gui.update()
                 else:
