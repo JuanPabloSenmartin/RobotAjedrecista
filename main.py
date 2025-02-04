@@ -12,10 +12,6 @@ z_low = 0.01
 limit_y_left = 0 #valid is higher (+) than this
 limit_x_down = 0.18 #valid is higher (+) than this
 
-# init_position = [0.36, -0.04]
-# position = [0.36, -0.04]
-# init_position = [0.514, -0.2535]
-# position = [0.514, -0.2535]
 init_position = [0.047, -0.25]
 
 # [x,y,isOccupied]
@@ -45,11 +41,6 @@ map = {
  'a5': [0.3044, -0.4641],  'a6': [0.2536, -0.4641],  'a7': [0.2028, -0.4641],  'a8': [0.152, -0.4641]
 }
 
-
-
-
-
-
 height = {
     1: 0.01, #PAWN
     2: 0.01, #KNIGHT
@@ -72,7 +63,7 @@ def move(init_square, next_square, piece, only=True):
     move_piece(init_pos, next_pos, piece_height, drop_height, only)
 
 def move_piece(current_position, next_position, height_z_low, drop_height=None, only=True):
-    cobot.semi_open_gripper()
+    cobot.open_gripper()
     cobot.move_robot(current_position, z_high)
     cobot.move_robot(current_position, height_z_low)
     cobot.close_gripper()
@@ -82,8 +73,7 @@ def move_piece(current_position, next_position, height_z_low, drop_height=None, 
         cobot.move_robot(next_position, height_z_low)
     else:
         cobot.move_robot(next_position, drop_height)
-    # cobot.semiOpenGripper2(150)
-    cobot.semi_open_gripper()
+    cobot.open_gripper()
     cobot.move_robot(next_position, z_high)
     if only:
         cobot.move_robot(init_position, z_high)
@@ -154,15 +144,6 @@ if __name__ == "__main__":
     # chess.board.set_fen('rnbqkbnr/ppppppp1/7p/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
 
     i = 0
-    j = -1
-
-    ##EXAMPLE
-    aux_board = [  ## person WHITE, robot BLACK
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",  ## person: e2e4, robot: c7c5
-        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 0 1",  ## person: g1f3, robot: b8c6
-        "r1bqkbnr/pp1ppppp/2n5/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1",  ## person: f1b5, robot: g7g6
-        "r1bqkbnr/pp1ppp1p/2n3p1/1Bp5/4P3/2N2N2/PPPP1PPP/R1BQK2R b KQkq - 0 1"  ## person: b1c3, robot: f8g7
-    ]
 
     # new = "rnbqkbnr/ppp1ppp1/7p/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1"
 
@@ -173,7 +154,6 @@ if __name__ == "__main__":
             ## juega persona
             ## ESTO VA A SER BORRADO DESPUES, ES PARA MOCKEAR LOS MOVIMIENTOS DE LA PERSONA
             print("juega persona")
-            j += 1
             i += 1
             print('write player move')
             player_move_aux = input().strip()
@@ -181,7 +161,7 @@ if __name__ == "__main__":
             # keyboard.wait("space")
             continue
 
-        ## detección de piezas
+        ## Pieces detection
         ## ESTA VARIABLE TIENE QUE SER REEMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
         # new_board = aux_board[j]
 
@@ -243,9 +223,14 @@ if __name__ == "__main__":
                         ##move rook to new position
                         init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
                         move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
-                    ## AGREGAR VERIFICACION DE SI TERMINO LA PARTIDA
+
                     chess.update_board(best_move)
                     gui.update()
+                    # check checkmate or draw
+                    if chess.is_game_over():
+                        print_game_over()
+                        stop_robot()
+                        break
                 else:
                     print('invalid move made by stockfish')
         else:

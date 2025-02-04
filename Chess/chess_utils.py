@@ -16,9 +16,6 @@ class Chess:
     def is_game_over(self):
         return self.board.is_game_over()
 
-    def print_board(self):
-        print(self.board.unicode(borders=True))
-
     def find_best_move(self):
         self.stockfish.set_fen_position(self.board.fen())
         return self.stockfish.get_best_move()
@@ -109,10 +106,6 @@ class Chess:
         # Parse the move into a chess.Move object
         chess_move = chess.Move.from_uci(move)
 
-        # Check if the move is legal
-        if chess_move not in self.board.legal_moves:
-            raise ValueError(f"Invalid move: {move}")
-
         # Castling conditions:
         # - The moving piece must be the king
         # - The move must represent a castling destination square
@@ -138,10 +131,6 @@ class Chess:
         """
         # Parse the move into a chess.Move object
         chess_move = chess.Move.from_uci(move)
-
-        # Check if the move is legal
-        if chess_move not in self.board.legal_moves:
-            raise ValueError(f"Invalid move: {move}")
 
         # Get the moving piece
         moving_piece = self.board.piece_at(chess_move.from_square)
@@ -174,10 +163,6 @@ class Chess:
         # Parse the move into a chess.Move object
         chess_move = chess.Move.from_uci(move)
 
-        # Ensure the move is legal
-        if chess_move not in self.board.legal_moves:
-            raise ValueError(f"Invalid move: {move}")
-
         # Check if the move is en passant
         if self.board.is_en_passant(chess_move):
             # The captured pawn is on the square behind the destination of the move
@@ -200,10 +185,6 @@ class Chess:
         # Parse the move to get the start and destination squares
         chess_move = chess.Move.from_uci(move)
 
-        # Ensure the move is legal
-        if chess_move not in self.board.legal_moves:
-            raise ValueError(f"Invalid move: {move}")
-
         # Check if the destination square is occupied by an opponent's piece
         destination_square = chess_move.to_square
         piece_at_destination = self.board.piece_at(destination_square)
@@ -225,10 +206,8 @@ class Chess:
                 - The first element is True if the boards are equal, otherwise False.
                 - The second element is the move in UCI format (e.g., 'e2e4') if boards are not equal.
         """
-        # Create a temporary board for comparison
         new_board = chess.Board(new_board_fen)
 
-        # Track the origin and destination of the move
         origin, destination = None, None
 
         # Compare each square of the current board to the new board
@@ -248,7 +227,7 @@ class Chess:
 
         # If no differences are found, the boards are equal
         if origin is None and destination is None:
-            return True, ""  # Boards are equal
+            return True, ""
 
         # If either origin or destination is missing, something went wrong
         if origin is None or destination is None:
@@ -258,18 +237,3 @@ class Chess:
         # Convert origin and destination to UCI format
         move = chess.square_name(origin) + chess.square_name(destination)
         return False, move
-
-    def check_occupied(self, target_square):
-        """
-        Uses `python_chess` to verify that the target square is not occupied. Will return a 1 if the square is occupied.
-
-        `target_square` is specified from 0 to 63, starting at A1, and moving across the rows to H8.
-
-        See: https://python-chess.readthedocs.io/en/latest/core.html#squares
-        """
-        if not self.board.piece_at(target_square):
-            self.occupied = 0
-        else:
-            self.occupied = 1
-
-        return self.occupied
