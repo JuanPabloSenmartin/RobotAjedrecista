@@ -68,7 +68,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -84,7 +84,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -98,7 +98,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -113,7 +113,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
                 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -129,7 +129,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -143,7 +143,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -159,7 +159,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -175,7 +175,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -193,7 +193,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -208,7 +208,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -224,7 +224,7 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
@@ -242,13 +242,21 @@ def makeChessBoard(saved_corners):
                 
                 center = find_center_np(squareCorners)
                 transformed_point = cv.perspectiveTransform(center, matrix)
-                robotMap[str(letter) + str(i)] = transformed_point
+                robotMap[str(letter) + str(i)] = transformed_point[0][0]
 
                 chessBoard[str(letter) + str(i)] = [squareCorners, None]
                 letterCounter += 1
                 pixelCounter += 1
+
+
+
+    output_file = os.path.join('parameters', 'map.yaml')
+    serializable_data = {key: value.tolist() for key, value in robotMap.items()}
+    with open(output_file, 'w') as file:
+        yaml.dump(serializable_data, file, default_flow_style=False)
+    
                 
-    return chessBoard
+    return chessBoard # CAMBIAR A ROBOT MAP
 
 def setup(initialChessBoard):
     # Place white pawns on row 2
@@ -272,11 +280,11 @@ def setup(initialChessBoard):
     return initialChessBoard
 
 cv.namedWindow("Cam", cv.WINDOW_NORMAL)
-cv.namedWindow("Cam1", cv.WINDOW_NORMAL)
+#cv.namedWindow("Cam1", cv.WINDOW_NORMAL)
 cv.namedWindow("Cam2", cv.WINDOW_NORMAL)
 
 chessBoardSize = (7,7)
-cam = cv.VideoCapture(1)
+cam = cv.VideoCapture(2)
 
 width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
 height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)
@@ -316,7 +324,7 @@ while True:
 
         # Display images
         cv.imshow('Cam', imLowRes)
-        cv.imshow('Cam1', imGrayLowRes)
+        #cv.imshow('Cam1', imGrayLowRes)
        
 
     key = cv.waitKey(30)
@@ -340,16 +348,38 @@ while True:
                 print("///////////////////////////////////////")
                 print(str(robotMap))
                 
-                points_A1 = dictionary['A1'][0]
-                center = find_center_np(points_A1)
+                
+                points_A8 = dictionary['A8'][0]
+                center = find_center_np(points_A8)
                 print(center)
                 matrix = get_transformation_matrix()
                 transformed_point1 = cv.perspectiveTransform(center, matrix)
+                point = robotMap['A8'] / 1000
+                print(str(point))
                 print(str(transformed_point1))
+
                 
-            case "c":  # Exit loop
+               
+                def load_from_yaml(filename):
+                    input_file = os.path.join('parameters', 'map.yaml')
+                    with open(input_file, 'r') as file:
+                        loaded_data = yaml.safe_load(file)  
+                    return {key: np.array(value, dtype=np.float32) for key, value in loaded_data.items()}
+
+                loaded_data = load_from_yaml('map.yml')
+                print(loaded_data)
+                A8 = loaded_data['A8']
+                x = A8[0] / 1000
+                y = A8[1] / 1000
+                print(A8)
+                print(x)
+                print(y)
+
+
+            case "e":  # Exit loop
                 break
             
+
 
 
 

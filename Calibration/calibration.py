@@ -29,7 +29,7 @@ objPoints = []
 
 gradualDarkness = 0.90
 
-cam = cv.VideoCapture(1)
+cam = cv.VideoCapture(2)
 
 width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
 height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)

@@ -44,15 +44,15 @@ def get_image_coordinates(saved_corners):
 
 # Coordinates in robot system
 robot_pts = np.array([
-    [3, 3],  # esquina superior izquierda
-    [3, 21],  # esquina superior derecha
-    [21, 3],   # esquina inferior izquierda
-    [21, 21]  # esquina inferior derecha
+    [201, -418],  # esquina superior izquierda
+    [210, -119],  # esquina superior derecha
+    [498, -427],   # esquina inferior izquierda
+    [509, -127]  # esquina inferior derecha
 ], dtype="float32")
 
 # ------------------------- Primary loop ------------------------- #
 
-cam = cv.VideoCapture(1)
+cam = cv.VideoCapture(2)
 
 chessBoard = (7,7)
 
@@ -80,6 +80,7 @@ while True:
                 K, distCoef = get_calibration_parameters()
                 imGray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
                 guardar_imagen(imGray)
+               # img_pts1 = get_image_coordinates(imGray)
                 undistorted_img = cv.undistort(im, K, distCoef)
                 guardar_imagen(undistorted_img)                 # For testing
                 ret_2, undisorted_corners = cv.findChessboardCorners(undistorted_img, chessBoard, None)
