@@ -11,6 +11,9 @@ import threading
 
 from Interface.gui import ChessGUI
 
+import cv2 as cv
+import Calibration.detectMovement as detectMovement
+
 z_high = 0.12
 z_low = 0.01
 
@@ -159,13 +162,23 @@ if __name__ == "__main__":
 
     player_move_aux = ''
 
+    cam = cv.VideoCapture(2)
+    ret, im = cam.read()
+    detectMovement.guardar_imagen(im, "imagen_anterior")
+
     while True:
         print("Make your move and press enter to continue...")
-        # keyboard.wait("space")
+        keyboard.wait("space")
+        ret, im = cam.read()
+        detectMovement.guardar_imagen(im, "imagen_actual")
+
+        
         print('write player move')
         player_move_aux = input().strip()
         person_move = player_move_aux
         ## Pieces detection
+        
+
 
         # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
         print('person_move', person_move)
