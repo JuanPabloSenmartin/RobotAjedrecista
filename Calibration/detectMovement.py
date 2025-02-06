@@ -1,48 +1,44 @@
-import cv2
+import cv2 as cv
 import numpy as np
+import os
+import chess 
+
+board = chess.Board()
 
 UMBRAL_CAMBIO = 2
-
-# Cargar imágenes
-imagen_anterior = cv2.imread('imagen_anterior.png')
-imagen_actual = cv2.imread('imagen_actual.png')
 
 alto = 640
 ancho = 480 
 # Definir puntos de correspondencia (ejemplo)
-puntos_origen = np.float32([[185, 32], [600, 20], [197, 460], [625, 443]])
+puntos_origen = np.float32([[138, 19], [557, 18], [142, 455], [576, 441]])
 puntos_destino = np.float32([[0, 0], [ancho, 0], [0, alto], [ancho, alto]])
 
 # Calcular la matriz de transformación
-matriz = cv2.getPerspectiveTransform(puntos_origen, puntos_destino)
+matriz = cv.getPerspectiveTransform(puntos_origen, puntos_destino)
 
-# Aplicar la transformación
-imagen_anterior_alineada = cv2.warpPerspective(imagen_anterior, matriz, (ancho, alto))
-imagen_actual_alineada = cv2.warpPerspective(imagen_actual, matriz, (ancho, alto))
 
 def dividir_tablero(imagen):
     casillas = []
     altura, ancho = imagen.shape[:2]
     tamaño_casilla_x = ancho // 8
     tamaño_casilla_y = altura // 8
-    for fila in range(8):
-        for columna in range(8):
+    for fila in range(7, -1, -1):  # Recorre las filas de abajo hacia arriba
+        for columna in range(8):  # Recorre las columnas de izquierda a derecha
             x_inicio = columna * tamaño_casilla_x
             y_inicio = fila * tamaño_casilla_y
             casilla = imagen[y_inicio:y_inicio + tamaño_casilla_y, x_inicio:x_inicio + tamaño_casilla_x]
             casillas.append(casilla)
     return casillas
 
-casillas_anterior = dividir_tablero(imagen_anterior_alineada)
-casillas_actual = dividir_tablero(imagen_actual_alineada)
+
 
 def diferencia_color(casilla1, casilla2):
     # Convertir a espacio de color RGB
-    casilla1_rgb = cv2.cvtColor(casilla1, cv2.COLOR_BGR2RGB)
-    casilla2_rgb = cv2.cvtColor(casilla2, cv2.COLOR_BGR2RGB)
+    casilla1_rgb = cv.cvtColor(casilla1, cv.COLOR_BGR2RGB)
+    casilla2_rgb = cv.cvtColor(casilla2, cv.COLOR_BGR2RGB)
     
     # Calcular la diferencia absoluta
-    diferencia = cv2.absdiff(casilla1_rgb, casilla2_rgb)
+    diferencia = cv.absdiff(casilla1_rgb, casilla2_rgb)
     
     # Calcular la suma de diferencias
     suma_diferencia = np.sum(diferencia)
@@ -55,7 +51,6 @@ def diferencia_color(casilla1, casilla2):
     cambio = mean2 - mean1  # Positivo: aumento de intensidad (posible adición), Negativo: disminución (posible remoción)
     
     return suma_diferencia, cambio
-
 
 def detect_movement():
 
@@ -70,12 +65,37 @@ def detect_movement():
     # Seleccionar las cuatro casillas con mayor cambio
     casillas_cambiadas = diferencias_ordenadas[:4]
 
-    diferencias_filtradas = [casilla for casilla in diferencias if abs(casilla[2]) > UMBRAL_CAMBIO]
+    diferencias_filtradas = [casilla for casilla in casillas_cambiadas if abs(casilla[2]) > UMBRAL_CAMBIO]
 
-    casillero_1 = diferencias_filtradas[0]
-    casillero_2 = diferencias_filtradas[1]
+    casillero_1 = diferencias_filtradas[0][0]
+    casillero_2 = diferencias_filtradas[1][0]
     print(str(casillas_cambiadas))
     print(str(diferencias_filtradas))
+
+    def index_to_chess_notation(index):
+        col = chr(97 + (index % 8))  # De 0-7 -> 'a'-'h'
+        row = str(1 + (index // 8))  # De 0-7 -> '1'-'8'
+        return col + row
+
+    square_1 = index_to_chess_notation(casillero_1)
+    square_2 = index_to_chess_notation(casillero_2)
+
+    print(square_1)
+    print(square_2)
+
+    board.set_fen('rnbqkbnr/pp1ppppp/8/8/N7/2p4P/PPPPPPP1/R1BQKBNR w KQkq - 0 1')
+    print(board)
+
+    piece_square_1 = board.piece_at(casillero_1)
+
+    print(piece_square_1)
+
+    if piece_square_1 != None and piece_square_1.color: # Es blanca
+        movement = square_1 + square_2
+    else:
+        movement = square_2 + square_1
+
+    print(f"Movimiento detectado: {movement}")
 
 def generate_fen(chess_board):
     # Mapeo de nombres de piezas a notación FEN
@@ -131,17 +151,87 @@ def generate_fen(chess_board):
     
     return fen
 
+
+cv.namedWindow("Cam", cv.WINDOW_NORMAL)
+
+cam = cv.VideoCapture(2)
+width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
+height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)
+newSize = (640, int(640 * height / width))
+
+def guardar_imagen(frame, nombreFoto, carpeta='fotos'):
+    if not os.path.exists(carpeta):
+        os.makedirs(carpeta)
+    ruta_completa = os.path.join(carpeta, nombreFoto)
+    cv.imwrite(ruta_completa, frame)
+    print(f"Imagen guardada en: {ruta_completa}")
+    return ruta_completa
+
+def cargar_imagen(nombreFoto, carpeta='fotos'):
+    ruta_completa = os.path.join(carpeta, nombreFoto)
+    if not os.path.exists(ruta_completa):
+        print(f"Error: La imagen '{ruta_completa}' no existe.")
+        return None
+    imagen = cv.imread(ruta_completa)
+    if imagen is None:
+        print(f"Error: No se pudo cargar la imagen '{ruta_completa}'.")
+        return None
+    return imagen
+
 while True:
+    ret, im = cam.read()
+    if ret:                                                
+        imLowRes = cv.resize(im, newSize)
+
+    cv.imshow('Cam', im)
+
+    
+    key = cv.waitKey(30)
+    if key >= 0:
+        key = chr(key)
+        match key:
+            case ' ':
+                guardar_imagen(im, "imagen_anterior.png")
+                print("foto guardada")
+            case 'a':
+                guardar_imagen(imLowRes, "imagen_actual.png")
+                print("foto guardada")
+            case 'd':
+                # Cargar imágenes
+                imagen_anterior = cargar_imagen('imagen_anterior.png')
+                imagen_actual = cargar_imagen('imagen_actual.png')
+
+                
+                cv.imshow("Imagen Anterior", imagen_anterior)
+                cv.imshow("Imagen Actual", imagen_actual)
+
+                
+                # Aplicar la transformación
+                imagen_anterior_alineada = cv.warpPerspective(imagen_anterior, matriz, (ancho, alto))
+                imagen_actual_alineada = cv.warpPerspective(imagen_actual, matriz, (ancho, alto))
+
+                """
+                cv.imshow("Imagen Anterior Alineada", imagen_anterior_alineada)
+                cv.imshow("Imagen Actual Alineada", imagen_actual_alineada)
+                """
+
+                casillas_anterior = dividir_tablero(imagen_anterior_alineada)
+                casillas_actual = dividir_tablero(imagen_actual_alineada)
+
+                detect_movement()
+
+            case 'e':
+                break
+
     # Mostrar cada imagen
+    """
     cv2.imshow("Imagen Anterior", imagen_anterior)
     cv2.imshow("Imagen Actual", imagen_actual)
     cv2.imshow("Imagen Anterior Alineada", imagen_anterior_alineada)
     cv2.imshow("Imagen Actual Alineada", imagen_actual_alineada)
-    
-    # Esperar una tecla para cerrar
-    if cv2.waitKey(1) & 0xFF == ord('q'):  # Presiona 'q' para salir
-        break
+    """
 
 # Cerrar todas las ventanas al salir del bucle
-cv2.destroyAllWindows()
+cam.release()
+cv.destroyAllWindows()
 
