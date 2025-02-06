@@ -1,4 +1,9 @@
+import os
 import time
+
+import numpy as np
+import yaml
+
 from Chess.chess_utils import Chess
 from Cobot.cobot_utils import Cobot
 import keyboard
@@ -21,43 +26,53 @@ outside_position_index = 0
 chess = Chess()
 cobot = Cobot()
 
-
-map = {
- 'h1': [0.5076, -0.091],   'h2': [0.4568, -0.091],   'h3': [0.406, -0.091],    'h4': [0.3552, -0.091],
- 'h5': [0.3044, -0.091],   'h6': [0.2536, -0.091],   'h7': [0.2028, -0.091],   'h8': [0.152, -0.091],
- 'g1': [0.5076, -0.1443],  'g2': [0.4568, -0.1443],  'g3': [0.406, -0.1443],   'g4': [0.3552, -0.1443],
- 'g5': [0.3044, -0.1443],  'g6': [0.2536, -0.1443],  'g7': [0.2028, -0.1443],  'g8': [0.152, -0.1443],
- 'f1': [0.5076, -0.1976],  'f2': [0.4568, -0.1976],  'f3': [0.406, -0.1976],   'f4': [0.3552, -0.1976],
- 'f5': [0.3044, -0.1976],  'f6': [0.2536, -0.1976],  'f7': [0.2028, -0.1976],  'f8': [0.152, -0.1976],
- 'e1': [0.5076, -0.2509],  'e2': [0.4568, -0.2509],  'e3': [0.406, -0.2509],   'e4': [0.3552, -0.2509],
- 'e5': [0.3044, -0.2509],  'e6': [0.2536, -0.2509],  'e7': [0.2028, -0.2509],  'e8': [0.152, -0.2509],
- 'd1': [0.5076, -0.3042],  'd2': [0.4568, -0.3042],  'd3': [0.406, -0.3042],   'd4': [0.3552, -0.3042],
- 'd5': [0.3044, -0.3042],  'd6': [0.2536, -0.3042],  'd7': [0.2028, -0.3042],  'd8': [0.152, -0.3042],
- 'c1': [0.5076, -0.3575],  'c2': [0.4568, -0.3575],  'c3': [0.406, -0.3575],   'c4': [0.3552, -0.3575],
- 'c5': [0.3044, -0.3575],  'c6': [0.2536, -0.3575],  'c7': [0.2028, -0.3575],  'c8': [0.152, -0.3575],
- 'b1': [0.5076, -0.4108],  'b2': [0.4568, -0.4108],  'b3': [0.406, -0.4108],   'b4': [0.3552, -0.4108],
- 'b5': [0.3044, -0.4108],  'b6': [0.2536, -0.4108],  'b7': [0.2028, -0.4108],  'b8': [0.152, -0.4108],
- 'a1': [0.5076, -0.4641],  'a2': [0.4568, -0.4641],  'a3': [0.406, -0.4641],   'a4': [0.3552, -0.4641],
- 'a5': [0.3044, -0.4641],  'a6': [0.2536, -0.4641],  'a7': [0.2028, -0.4641],  'a8': [0.152, -0.4641]
-}
+new_map = {}
+# map = {
+#  'h1': [0.5076, -0.091],   'h2': [0.4568, -0.091],   'h3': [0.406, -0.091],    'h4': [0.3552, -0.091],
+#  'h5': [0.3044, -0.091],   'h6': [0.2536, -0.091],   'h7': [0.2028, -0.091],   'h8': [0.152, -0.091],
+#  'g1': [0.5076, -0.1443],  'g2': [0.4568, -0.1443],  'g3': [0.406, -0.1443],   'g4': [0.3552, -0.1443],
+#  'g5': [0.3044, -0.1443],  'g6': [0.2536, -0.1443],  'g7': [0.2028, -0.1443],  'g8': [0.152, -0.1443],
+#  'f1': [0.5076, -0.1976],  'f2': [0.4568, -0.1976],  'f3': [0.406, -0.1976],   'f4': [0.3552, -0.1976],
+#  'f5': [0.3044, -0.1976],  'f6': [0.2536, -0.1976],  'f7': [0.2028, -0.1976],  'f8': [0.152, -0.1976],
+#  'e1': [0.5076, -0.2509],  'e2': [0.4568, -0.2509],  'e3': [0.406, -0.2509],   'e4': [0.3552, -0.2509],
+#  'e5': [0.3044, -0.2509],  'e6': [0.2536, -0.2509],  'e7': [0.2028, -0.2509],  'e8': [0.152, -0.2509],
+#  'd1': [0.5076, -0.3042],  'd2': [0.4568, -0.3042],  'd3': [0.406, -0.3042],   'd4': [0.3552, -0.3042],
+#  'd5': [0.3044, -0.3042],  'd6': [0.2536, -0.3042],  'd7': [0.2028, -0.3042],  'd8': [0.152, -0.3042],
+#  'c1': [0.5076, -0.3575],  'c2': [0.4568, -0.3575],  'c3': [0.406, -0.3575],   'c4': [0.3552, -0.3575],
+#  'c5': [0.3044, -0.3575],  'c6': [0.2536, -0.3575],  'c7': [0.2028, -0.3575],  'c8': [0.152, -0.3575],
+#  'b1': [0.5076, -0.4108],  'b2': [0.4568, -0.4108],  'b3': [0.406, -0.4108],   'b4': [0.3552, -0.4108],
+#  'b5': [0.3044, -0.4108],  'b6': [0.2536, -0.4108],  'b7': [0.2028, -0.4108],  'b8': [0.152, -0.4108],
+#  'a1': [0.5076, -0.4641],  'a2': [0.4568, -0.4641],  'a3': [0.406, -0.4641],   'a4': [0.3552, -0.4641],
+#  'a5': [0.3044, -0.4641],  'a6': [0.2536, -0.4641],  'a7': [0.2028, -0.4641],  'a8': [0.152, -0.4641]
+# }
 
 height = {
     1: 0.01, #PAWN
-    2: 0.01, #KNIGHT
+    2: 0.02, #KNIGHT
     3: 0.02, #BISHOP
     4: 0.01, #ROOK
     5: 0.045, #QUEEN
     6: 0.045, #KING
 }
 
+
+def load_from_yaml():
+    input_file = os.path.join('Calibration/parameters', 'map.yaml')
+    with open(input_file, 'r') as file:
+        loaded_data = yaml.safe_load(file)
+    return {key: np.array(value, dtype=np.float32) for key, value in loaded_data.items()}
+
+def transform_map(chess_map):
+    return {key.lower(): [value[0] / 1000, value[1] / 1000] for key, value in chess_map.items()}
+
 def move(init_square, next_square, piece, only=True):
-    init_pos = map.get(init_square)
+    init_pos = new_map.get(init_square)
     piece_height = height.get(piece)
     if next_square == 'OUT':
         next_pos = get_free_outside_position()
-        drop_height = piece_height - 0.005
+        drop_height = piece_height - 0.002
     else:
-        next_pos = map.get(next_square)
+        next_pos = new_map.get(next_square)
         drop_height = None
 
     move_piece(init_pos, next_pos, piece_height, drop_height, only)
@@ -128,54 +143,41 @@ def stop_robot():
 
 if __name__ == "__main__":
 
+    ## Init position:coordinates map
+    new_map = transform_map(load_from_yaml())
+
+    ## Move cobot to initial position
+    cobot.init_position(init_position, z_high)
+
+    ## Generate outside positions array
     generate_outside_positions()
 
-    ###################################################################
-    ##         GUI
-
+    ## Init GUI
     gui = ChessGUI(chess.board)
     gui_thread = threading.Thread(target=gui.run, daemon=True)
     gui_thread.start()
-    ###################################################################
-
-    cobot.init_position(init_position, z_high)
-
-
-    # chess.board.set_fen('rnbqkbnr/ppppppp1/7p/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1')
-
-    i = 0
-
-    # new = "rnbqkbnr/ppp1ppp1/7p/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 1"
 
     player_move_aux = ''
 
     while True:
-        if i % 2 == 0:
-            ## juega persona
-            ## ESTO VA A SER BORRADO DESPUES, ES PARA MOCKEAR LOS MOVIMIENTOS DE LA PERSONA
-            print("juega persona")
-            i += 1
-            print('write player move')
-            player_move_aux = input().strip()
-            # print("Press enter to continue...")
-            # keyboard.wait("space")
-            continue
-
+        print("Make your move and press enter to continue...")
+        # keyboard.wait("space")
+        print('write player move')
+        player_move_aux = input().strip()
+        person_move = player_move_aux
         ## Pieces detection
-        ## ESTA VARIABLE TIENE QUE SER REEMPLAZADO POR EL FEN DEL ESTADO ACTUAL DEL TABLERO DETECTADO
-        # new_board = aux_board[j]
 
         # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
-        is_chessboard_equal = False
-        person_move = player_move_aux
         print('person_move', person_move)
-        if not is_chessboard_equal:
+        if person_move is not None:
             if not chess.is_move_valid(person_move):
-                print('INVALID MOVE, STOPPING ROBOT: ', person_move)
-                stop_robot()
-                break
+                print('INVALID MOVE WAS MADE: ', person_move)
+                print('Make another move\n')
+                continue
+                # stop_robot()
+                # break
             else:
-                i = i + 1
+                # i = i + 1
                 chess.update_board(person_move)  # update MY board
                 gui.update()
 
@@ -232,6 +234,8 @@ if __name__ == "__main__":
                         stop_robot()
                         break
                 else:
-                    print('invalid move made by stockfish')
+                    print('Invalid move made by stockfish')
+                    print('Stopping robot')
+                    stop_robot()
         else:
-            print('chessboards are equal')
+            print('No move was detected, try again')

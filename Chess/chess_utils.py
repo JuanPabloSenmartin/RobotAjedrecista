@@ -1,5 +1,6 @@
 import chess
 import chess.engine
+from chess.svg import board
 from stockfish import Stockfish
 
 class Chess:
@@ -184,7 +185,6 @@ class Chess:
         """
         # Parse the move to get the start and destination squares
         chess_move = chess.Move.from_uci(move)
-
         # Check if the destination square is occupied by an opponent's piece
         destination_square = chess_move.to_square
         piece_at_destination = self.board.piece_at(destination_square)
@@ -233,7 +233,6 @@ class Chess:
         if origin is None or destination is None:
             print(f"Error: origin={origin}, destination={destination}")
             return False, ""  # Error case (invalid board state)
-
         # Convert origin and destination to UCI format
         move = chess.square_name(origin) + chess.square_name(destination)
         return False, move

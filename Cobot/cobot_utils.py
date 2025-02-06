@@ -11,8 +11,8 @@ PORT = 30001
 INITIAL_POSITION = [0.514, -0.2535]
 INITIAL_Z = 0.12
 
-FIXED_VELOCITY = 0.1
-ARBITRARY_ACCELERATION = 0.06
+FIXED_VELOCITY = 0.25
+ARBITRARY_ACCELERATION = 0.1
 
 def init_robot():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,7 +29,7 @@ def init_gripper():
     print("connecting with gripper...")
     time.sleep(1)
     print("Successfully connected with gripper!")
-    return rob, robotiqgrip
+    return robotiqgrip
 
 
 class Cobot:
@@ -37,7 +37,7 @@ class Cobot:
         self.robot_actual_position = INITIAL_POSITION
         self.robot_actual_z = INITIAL_Z
         self.cobot = init_robot()
-        self.rob, self.gripper = init_gripper()
+        self.gripper = init_gripper()
 
     def init_position(self, position, z):
         command = f"movel(p[{position[0]:.2f}, {position[1]:.2f}, {z:.2f}, 2.89, -1.24, 0], a={ARBITRARY_ACCELERATION:.2f}, v={FIXED_VELOCITY:.2f}, t={4:.2f})\n"
@@ -71,18 +71,18 @@ class Cobot:
         if x1 == x2 and y1 == y2 :
             if z == self.robot_actual_z:
                 return 0.1
-            return 2
+            return 1.3
         distance = self.calculate_distance(x1, y1, x2, y2)
         time_to_travel = distance / FIXED_VELOCITY
-        return time_to_travel + 1 if time_to_travel > 1 else 1
+        return time_to_travel if time_to_travel > 1 else 1
 
     def close_gripper(self):
         self.gripper.close_gripper()
-        time.sleep(1)
+        # time.sleep(0.5)
 
     def open_gripper(self):
         self.gripper.gripper_action(120)
-        time.sleep(1)
+        # time.sleep(0.5)
 
     def stop_robot(self):
         self.cobot.close()
