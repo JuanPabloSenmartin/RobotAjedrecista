@@ -52,6 +52,12 @@ def diferencia_color(casilla1, casilla2):
     
     return suma_diferencia, cambio
 
+
+def index_to_chess_notation(index):
+            col = chr(97 + (index % 8))  # De 0-7 -> 'a'-'h'
+            row = str(1 + (index // 8))  # De 0-7 -> '1'-'8'
+            return col + row
+
 def detect_movement():
 
     diferencias = []
@@ -67,33 +73,72 @@ def detect_movement():
 
     diferencias_filtradas = [casilla for casilla in casillas_cambiadas if abs(casilla[2]) > UMBRAL_CAMBIO]
 
-    casillero_1 = diferencias_filtradas[0][0]
-    casillero_2 = diferencias_filtradas[1][0]
-    print(str(casillas_cambiadas))
-    print(str(diferencias_filtradas))
+    
+    if diferencias_filtradas == 2:
+        casillero_1 = diferencias_filtradas[0][0]
+        casillero_2 = diferencias_filtradas[1][0]
+        print(str(casillas_cambiadas))
+        print(str(diferencias_filtradas))
 
-    def index_to_chess_notation(index):
-        col = chr(97 + (index % 8))  # De 0-7 -> 'a'-'h'
-        row = str(1 + (index // 8))  # De 0-7 -> '1'-'8'
-        return col + row
+        square_1 = index_to_chess_notation(casillero_1)
+        square_2 = index_to_chess_notation(casillero_2)
 
-    square_1 = index_to_chess_notation(casillero_1)
-    square_2 = index_to_chess_notation(casillero_2)
+        print(square_1)
+        print(square_2)
 
-    print(square_1)
-    print(square_2)
+        print(board)
 
-    board.set_fen('rnbqkbnr/pp1ppppp/8/8/N7/2p4P/PPPPPPP1/R1BQKBNR w KQkq - 0 1')
-    print(board)
+        piece_square_1 = board.piece_at(casillero_1)
 
-    piece_square_1 = board.piece_at(casillero_1)
+        print(piece_square_1)
 
-    print(piece_square_1)
+        if piece_square_1 != None and piece_square_1.color: # Es blanca
+            movement = square_1 + square_2
+        else:
+            movement = square_2 + square_1
 
-    if piece_square_1 != None and piece_square_1.color: # Es blanca
-        movement = square_1 + square_2
-    else:
-        movement = square_2 + square_1
+    elif diferencias_filtradas == 3: 
+        casillero_1 = diferencias_filtradas[0][0]
+        casillero_2 = diferencias_filtradas[1][0]
+        casillero_3 = diferencias_filtradas[2][0]
+
+        square_1 = index_to_chess_notation(casillero_1)
+        square_2 = index_to_chess_notation(casillero_2)
+        square_3 = index_to_chess_notation(casillero_3)
+
+        piece_square_1 = board.piece_at(casillero_1)
+        piece_square_2 = board.piece_at(casillero_2)
+        piece_square_3 = board.piece_at(casillero_3)
+
+        if piece_square_1 != None and piece_square_1.color:
+            movement = square_1 + square_3
+        else: 
+            movement = square_2 + square_3
+
+    elif diferencias_filtradas == 4:
+
+        casillero_1 = diferencias_filtradas[0][0]
+        casillero_2 = diferencias_filtradas[1][0]
+        casillero_3 = diferencias_filtradas[2][0]
+        casillero_4 = diferencias_filtradas[3][0]
+
+        square_1 = index_to_chess_notation(casillero_1)
+        square_2 = index_to_chess_notation(casillero_2)
+        square_3 = index_to_chess_notation(casillero_3)
+        square_4 = index_to_chess_notation(casillero_4)
+
+        piece_square_1 = board.piece_at(casillero_1)
+        piece_square_2 = board.piece_at(casillero_2)
+        piece_square_3 = board.piece_at(casillero_3)
+        piece_square_4 = board.piece_at(casillero_4)
+
+        if piece_square_1.color and piece_square_4.color: 
+            if piece_square_1.piece_type == 4 and piece_square_4.piece_type == 6:
+                movement = square_4 + square_2
+            elif piece_square_1.piece_type == 6 and piece_square_4.piece_type == 6: 
+                movement = square_1 + square_3
+    else: 
+        movement = None
 
     print(f"Movimiento detectado: {movement}")
 
