@@ -248,29 +248,39 @@ def detect_movement(previous_squares, current_squares, board):
             movement = square_2 + square_1
 
     elif num_filtered == 3:
-        square_1_index, square_2_index, square_3_index = [sq[0] for sq in filtered_differences]
-        square_1, square_2, square_3 = (index_to_chess_notation(square_1_index),
-                                        index_to_chess_notation(square_2_index),
-                                        index_to_chess_notation(square_3_index))
+        square_indexes = [filtered_differences[0][0], filtered_differences[1][0], filtered_differences[2][0]]
         
-        piece_square_1 = board.piece_at(square_1_index)
-        piece_square_2 = board.piece_at(square_2_index)
+        square_indexes.sort()
 
-        if piece_square_1.piece_type == 1 and piece_square_1.color:
+        square_1 = index_to_chess_notation(square_indexes[0])
+        square_2 = index_to_chess_notation(square_indexes[1])
+        square_3 = index_to_chess_notation(square_indexes[2])
+        
+        piece_square_1 = board.piece_at(square_indexes[0])
+
+        if piece_square_1 != None and piece_square_1.color:
             movement = square_1 + square_3
-        elif piece_square_2.piece_type == 1 and piece_square_2.color:
+        else: 
             movement = square_2 + square_3
 
     elif num_filtered == 4:
-        square_indices = [sq[0] for sq in filtered_differences]
-        squares = [index_to_chess_notation(idx) for idx in square_indices]
-        pieces = [board.piece_at(idx) for idx in square_indices]
+        square_indexes = [filtered_differences[0][0], filtered_differences[1][0], filtered_differences[2][0], filtered_differences[3][0]]
 
-        if pieces[0].color and pieces[3].color:
-            if pieces[0].piece_type == 4 and pieces[3].piece_type == 6:
-                movement = squares[3] + squares[1]  # Castling move
-            elif pieces[0].piece_type == 6 and pieces[3].piece_type == 6:
-                movement = squares[0] + squares[2]
+        square_indexes.sort()
+
+        square_1 = index_to_chess_notation(square_indexes[0])
+        square_2 = index_to_chess_notation(square_indexes[1])
+        square_3 = index_to_chess_notation(square_indexes[2])
+        square_4 = index_to_chess_notation(square_indexes[3])
+
+        piece_square_1 = board.piece_at(square_indexes[0])
+        piece_square_4 = board.piece_at(square_indexes[3])
+
+        if piece_square_1.color and piece_square_4.color: 
+            if piece_square_1.piece_type == 4 and piece_square_4.piece_type == 6:
+                movement = square_4 + square_2
+            elif piece_square_1.piece_type == 6 and piece_square_4.piece_type == 4: 
+                movement = square_1 + square_3
     
     print(f"Detected movement: {movement}")
     return movement
