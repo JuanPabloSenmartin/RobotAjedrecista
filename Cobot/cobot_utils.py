@@ -25,7 +25,7 @@ def init_robot():
 
 def init_gripper():
     rob = urx.Robot(HOST)
-    robotiqgrip = Robotiq_Two_Finger_Gripper(rob)
+    robotiqgrip = Robotiq_Two_Finger_Gripper(rob, force=1, payload=0.5)
     print("connecting with gripper...")
     time.sleep(1)
     print("Successfully connected with gripper!")
