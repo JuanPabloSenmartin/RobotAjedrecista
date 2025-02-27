@@ -5,7 +5,7 @@ import numpy as np
 import urx
 from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
 
-HOST = "192.168.0.18"
+HOST = "192.168.0.102"
 PORT = 30001
 
 INITIAL_POSITION = [0.514, -0.2535]

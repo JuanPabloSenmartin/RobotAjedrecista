@@ -272,8 +272,8 @@ if __name__ == "__main__":
 
     player_move_aux = ''
 
-    cv.namedWindow("Cam", cv.WINDOW_NORMAL)
-    cam = cv.VideoCapture(2)
+    # cv.namedWindow("Cam", cv.WINDOW_NORMAL)
+    cam = cv.VideoCapture(0)
     take = False
     while True:
         ret, im = cam.read()
@@ -287,107 +287,109 @@ if __name__ == "__main__":
         key = cv.waitKey(30)
         if key >= 0:
             key = chr(key)
-            match key: 
-                case 's':
-                    guardar_imagen(im, "imagen_anterior.png")
-                    print("foto guardada")                             
-                case ' ':
-                    guardar_imagen(im, "imagen_actual.png")
-                    print("foto guardada")
 
-                    previousImage = cargar_imagen("imagen_anterior.png")
-                    afterImage = cargar_imagen("imagen_actual.png")
+            # match key:
+            if key == 's':
+                guardar_imagen(im, "imagen_anterior.png")
+                print("foto guardada")
+            if key == ' ':
+                guardar_imagen(im, "imagen_actual.png")
+                print("foto guardada")
 
-                    imagen_anterior_alineada = cv.warpPerspective(previousImage, matriz, (ancho, alto))
-                    imagen_actual_alineada = cv.warpPerspective(afterImage, matriz, (ancho, alto))
+                previousImage = cargar_imagen("imagen_anterior.png")
+                afterImage = cargar_imagen("imagen_actual.png")
 
-                    cv.imshow("Imagen Anterior Alineada", imagen_anterior_alineada)
-                    cv.imshow("Imagen Actual Alineada", imagen_actual_alineada)
-                
+                imagen_anterior_alineada = cv.warpPerspective(previousImage, matriz, (ancho, alto))
+                imagen_actual_alineada = cv.warpPerspective(afterImage, matriz, (ancho, alto))
 
-                    previous_squares = dividir_tablero(imagen_anterior_alineada)
-                    actual_squares = dividir_tablero(imagen_actual_alineada)
+                # cv.imshow("Imagen Anterior Alineada", imagen_anterior_alineada)
+                # cv.imshow("Imagen Actual Alineada", imagen_actual_alineada)
 
-                    movement = detect_movement(previous_squares, actual_squares, chess.board)
 
-                    person_move = movement
-                    ## Pieces detection
+                previous_squares = dividir_tablero(imagen_anterior_alineada)
+                actual_squares = dividir_tablero(imagen_actual_alineada)
 
-                    # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
-                    print('person_move', person_move)
-                    if person_move is not None:
-                        if not chess.is_move_valid(person_move):
-                            print('INVALID MOVE WAS MADE: ', person_move)
-                            print('Make another move\n')
-                            continue
-                            # stop_robot()
-                            # break
-                        else:
-                            # i = i + 1
-                            chess.update_board(person_move)  # update MY board
+                # movement = detect_movement(previous_squares, actual_squares, chess.board)
+
+                # person_move = movement
+                person_move = "e2e4"
+                ## Pieces detection
+
+                # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
+                print('person_move', person_move)
+                if person_move is not None:
+                    if not chess.is_move_valid(person_move):
+                        print('INVALID MOVE WAS MADE: ', person_move)
+                        print('Make another move\n')
+                        continue
+                        # stop_robot()
+                        # break
+                    else:
+                        # i = i + 1
+                        chess.update_board(person_move)  # update MY board
+                        gui.update()
+
+                        # check checkmate or draw
+                        if chess.is_game_over():
+                            print_game_over()
+                            stop_robot()
+                            break
+                        # check best move
+                        best_move = chess.find_best_move()
+                        print('best_move', best_move)
+
+                        if chess.is_move_valid(best_move):
+                            from_square, to_square = chess.get_move_squares(best_move)
+
+                            is_capture = chess.is_move_capture(best_move)
+                            is_en_passant, captured_square = chess.is_move_en_passant(best_move)
+                            is_promotion = chess.is_move_promotion(best_move)
+                            is_castle = chess.is_move_castle(best_move)
+
+                            if is_capture:
+                                print('capture')
+                                ##move captured piece first
+                                move(to_square, 'OUT', chess.get_piece(to_square), False)
+
+                            if is_en_passant:
+                                print('en passant')
+                                ##move other piece first
+                                move(captured_square, 'OUT', chess.get_piece(captured_square), False)
+
+                            ##move piece
+                            is_only = not (is_castle or is_promotion)
+                            move(from_square, to_square, chess.get_piece(from_square), is_only)
+
+                            if is_promotion:
+                                print('promotion')
+                                ## TODO: Implement promotion logic
+                                ##takes pawn out of the board
+                                ##move()
+                                ##brings queen back from outside the board
+                                ##move()
+
+                            if is_castle:
+                                print('castle')
+                                ##move rook to new position
+                                init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
+                                move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
+
+                            chess.update_board(best_move)
                             gui.update()
-
                             # check checkmate or draw
                             if chess.is_game_over():
                                 print_game_over()
                                 stop_robot()
                                 break
-                            # check best move
-                            best_move = chess.find_best_move()
-                            print('best_move', best_move)
+                            take = True
+                        else:
+                            print('Invalid move made by stockfish')
+                            print('Stopping robot')
+                            stop_robot()
 
-                            if chess.is_move_valid(best_move):
-                                from_square, to_square = chess.get_move_squares(best_move)
 
-                                is_capture = chess.is_move_capture(best_move)
-                                is_en_passant, captured_square = chess.is_move_en_passant(best_move)
-                                is_promotion = chess.is_move_promotion(best_move)
-                                is_castle = chess.is_move_castle(best_move)
-
-                                if is_capture:
-                                    print('capture')
-                                    ##move captured piece first
-                                    move(to_square, 'OUT', chess.get_piece(to_square), False)
-
-                                if is_en_passant:
-                                    print('en passant')
-                                    ##move other piece first
-                                    move(captured_square, 'OUT', chess.get_piece(captured_square), False)
-
-                                ##move piece
-                                is_only = not (is_castle or is_promotion)
-                                move(from_square, to_square, chess.get_piece(from_square), is_only)
-
-                                if is_promotion:
-                                    print('promotion')
-                                    ## TODO: Implement promotion logic
-                                    ##takes pawn out of the board
-                                    ##move()
-                                    ##brings queen back from outside the board
-                                    ##move()
-
-                                if is_castle:
-                                    print('castle')
-                                    ##move rook to new position
-                                    init_rook_square, next_rook_square = chess.get_castling_rook_positions(best_move)
-                                    move(init_rook_square, next_rook_square, chess.get_piece(init_rook_square))
-
-                                chess.update_board(best_move)
-                                gui.update()
-                                # check checkmate or draw
-                                if chess.is_game_over():
-                                    print_game_over()
-                                    stop_robot()
-                                    break
-                                take = True
-                            else:
-                                print('Invalid move made by stockfish')
-                                print('Stopping robot')
-                                stop_robot()
-
-                        
-                    else:
-                        print('No move was detected, try again')
+                else:
+                    print('No move was detected, try again')
 
     # Cerrar todas las ventanas al salir del bucle
     cam.release()
