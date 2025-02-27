@@ -195,7 +195,7 @@ def dividir_tablero(imagen):
             casillas.append(casilla)
     return casillas
 
-def diferencia_color(casilla1, casilla2):
+def color_difference(casilla1, casilla2):
     # Convertir a espacio de color RGB
     casilla1_rgb = cv.cvtColor(casilla1, cv.COLOR_BGR2RGB)
     casilla2_rgb = cv.cvtColor(casilla2, cv.COLOR_BGR2RGB)
@@ -215,43 +215,75 @@ def diferencia_color(casilla1, casilla2):
 
     return suma_diferencia, cambio
 
+def index_to_chess_notation(index):
+            col = chr(97 + (index % 8))  # De 0-7 -> 'a'-'h'
+            row = str(1 + (index // 8))  # De 0-7 -> '1'-'8'
+            return col + row
 
-def detect_movement(casillas_anterior, casillas_actual, board):
-    diferencias = []
+def detect_movement(previous_squares, current_squares, board):
+    differences = []
     for i in range(64):
-        diff, cambio = diferencia_color(casillas_anterior[i], casillas_actual[i])
-        diferencias.append((i, diff, cambio))
+        diff, change = color_difference(previous_squares[i], current_squares[i])
+        differences.append((i, diff, change))
 
-    # Ordenar las diferencias de mayor a menor
-    diferencias_ordenadas = sorted(diferencias, key=lambda x: x[1], reverse=True)
+    # Sort differences from largest to smallest
+    sorted_differences = sorted(differences, key=lambda x: x[1], reverse=True)
 
-    # Seleccionar las cuatro casillas con mayor cambio
-    casillas_cambiadas = diferencias_ordenadas[:4]
+    # Select the four squares with the most change
+    changed_squares = sorted_differences[:4]
+    filtered_differences = [square for square in changed_squares if abs(square[2]) > 2]
 
-    diferencias_filtradas = [casilla for casilla in casillas_cambiadas if abs(casilla[2]) > 4]
+    movement = None
+    num_filtered = len(filtered_differences)
 
-    casillero_1 = diferencias_filtradas[0][0]
-    casillero_2 = diferencias_filtradas[1][0]
+    if num_filtered == 2:
+        square_1_index, square_2_index = filtered_differences[0][0], filtered_differences[1][0]
+        square_1, square_2 = index_to_chess_notation(square_1_index), index_to_chess_notation(square_2_index)
+        
+        piece_square_1 = board.piece_at(square_1_index)
+        
+        if piece_square_1 and piece_square_1.color:  # White piece
+            movement = square_1 + square_2
+        else:
+            movement = square_2 + square_1
 
-    def index_to_chess_notation(index):
-        col = chr(97 + (index % 8))  # De 0-7 -> 'a'-'h'
-        row = str(1 + (index // 8))  # De 0-7 -> '1'-'8'
-        return col + row
+    elif num_filtered == 3:
+        square_indexes = [filtered_differences[0][0], filtered_differences[1][0], filtered_differences[2][0]]
+        
+        square_indexes.sort()
 
-    square_1 = index_to_chess_notation(casillero_1)
-    square_2 = index_to_chess_notation(casillero_2)
+        square_1 = index_to_chess_notation(square_indexes[0])
+        square_2 = index_to_chess_notation(square_indexes[1])
+        square_3 = index_to_chess_notation(square_indexes[2])
+        
+        piece_square_1 = board.piece_at(square_indexes[0])
 
-    print(square_1, square_2)
+        if piece_square_1 != None and piece_square_1.color:
+            movement = square_1 + square_3
+        else: 
+            movement = square_2 + square_3
 
-    piece_square_1 = board.piece_at(casillero_1)
+    elif num_filtered == 4:
+        square_indexes = [filtered_differences[0][0], filtered_differences[1][0], filtered_differences[2][0], filtered_differences[3][0]]
 
-    if piece_square_1 != None and piece_square_1.color:  # Es blanca
-        movement = square_1 + square_2
-    else:
-        movement = square_2 + square_1
+        square_indexes.sort()
 
+        square_1 = index_to_chess_notation(square_indexes[0])
+        square_2 = index_to_chess_notation(square_indexes[1])
+        square_3 = index_to_chess_notation(square_indexes[2])
+        square_4 = index_to_chess_notation(square_indexes[3])
+
+        piece_square_1 = board.piece_at(square_indexes[0])
+        piece_square_4 = board.piece_at(square_indexes[3])
+
+        if piece_square_1.color and piece_square_4.color: 
+            if piece_square_1.piece_type == 4 and piece_square_4.piece_type == 6:
+                movement = square_4 + square_2
+            elif piece_square_1.piece_type == 6 and piece_square_4.piece_type == 4: 
+                movement = square_1 + square_3
+    
+    print(f"Detected movement: {movement}")
     return movement
-
 
 
 if __name__ == "__main__":
