@@ -7,6 +7,7 @@ class Chess:
     def __init__(self):
         self.board = chess.Board()
         self.stockfish = Stockfish(path="engine/stockfish/stockfish-windows-x86-64-avx2.exe")
+        self.stockfish.set_elo_rating(2000)
 
     def is_move_valid(self, move):
         return self.board.is_legal(chess.Move.from_uci(move))

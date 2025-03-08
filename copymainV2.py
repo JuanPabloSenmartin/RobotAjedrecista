@@ -74,7 +74,7 @@ def move(init_square, next_square, piece, only=True):
     piece_height = height.get(piece)
     if next_square == 'OUT':
         next_pos = get_free_outside_position()
-        drop_height = piece_height - 0.002
+        drop_height = piece_height - 0.004
     else:
         next_pos = new_map.get(next_square)
         drop_height = None

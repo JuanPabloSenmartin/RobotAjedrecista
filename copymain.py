@@ -17,7 +17,7 @@ z_high = 0.12
 z_low = 0.01
 
 limit_y_left = 0  # valid is higher (+) than this
-limit_x_down = 0.18  # valid is higher (+) than this
+limit_x_down = 0.2  # valid is higher (+) than this
 
 init_position = [0.047, -0.25]
 
@@ -175,7 +175,7 @@ alto = 640
 ancho = 480
 
 # Definir puntos de correspondencia (ejemplo)
-puntos_origen = np.float32([[185, 11], [604, 24], [174, 447], [610, 448]])
+puntos_origen = np.float32([[154, 4], [569, 13], [136, 429], [576, 439]])
 puntos_destino = np.float32([[0, 0], [ancho, 0], [0, alto], [ancho, alto]])
 
 # Calcular la matriz de transformación
@@ -229,10 +229,12 @@ def detect_movement(previous_squares, current_squares, board):
     # Sort differences from largest to smallest
     sorted_differences = sorted(differences, key=lambda x: x[1], reverse=True)
 
+    print(sorted_differences)
     # Select the four squares with the most change
     changed_squares = sorted_differences[:4]
-    filtered_differences = [square for square in changed_squares if abs(square[2]) > 2]
+    filtered_differences = [square for square in changed_squares if abs(square[2]) > 3]
 
+    print(filtered_differences)
     movement = None
     num_filtered = len(filtered_differences)
 
@@ -276,11 +278,12 @@ def detect_movement(previous_squares, current_squares, board):
         piece_square_1 = board.piece_at(square_indexes[0])
         piece_square_4 = board.piece_at(square_indexes[3])
 
-        if piece_square_1.color and piece_square_4.color: 
-            if piece_square_1.piece_type == 4 and piece_square_4.piece_type == 6:
-                movement = square_4 + square_2
-            elif piece_square_1.piece_type == 6 and piece_square_4.piece_type == 4: 
-                movement = square_1 + square_3
+        if piece_square_1 != None and piece_square_4 != None:
+            if piece_square_1.color and piece_square_4.color:
+                if piece_square_1.piece_type == 4 and piece_square_4.piece_type == 6:
+                    movement = square_4 + square_2
+                elif piece_square_1.piece_type == 6 and piece_square_4.piece_type == 4:
+                    movement = square_1 + square_3
     
     print(f"Detected movement: {movement}")
     return movement
@@ -334,17 +337,17 @@ if __name__ == "__main__":
                 imagen_anterior_alineada = cv.warpPerspective(previousImage, matriz, (ancho, alto))
                 imagen_actual_alineada = cv.warpPerspective(afterImage, matriz, (ancho, alto))
 
-                # cv.imshow("Imagen Anterior Alineada", imagen_anterior_alineada)
-                # cv.imshow("Imagen Actual Alineada", imagen_actual_alineada)
+                cv.imshow("Imagen Anterior Alineada", imagen_anterior_alineada)
+                cv.imshow("Imagen Actual Alineada", imagen_actual_alineada)
 
 
                 previous_squares = dividir_tablero(imagen_anterior_alineada)
                 actual_squares = dividir_tablero(imagen_actual_alineada)
 
-                # movement = detect_movement(previous_squares, actual_squares, chess.board)
+                movement = detect_movement(previous_squares, actual_squares, chess.board)
 
-                # person_move = movement
-                person_move = "e2e4"
+                person_move = movement
+                # person_move = "e2e4"
                 ## Pieces detection
 
                 # is_chessboard_equal, person_move = chess.are_chessboards_equal(new_board)
