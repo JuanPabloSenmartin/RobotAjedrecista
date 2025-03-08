@@ -4,9 +4,9 @@ from stockfish import Stockfish
 
 class Chess:
     def __init__(self):
-        """Initializes the chessboard and Stockfish engine."""
+        """Initializes the chessboard and Stockfish Engine."""
         self.board = chess.Board()
-        self.stockfish = Stockfish(path="engine/stockfish/stockfish-windows-x86-64-avx2.exe")
+        self.stockfish = Stockfish(path="Engine/stockfish/stockfish-windows-x86-64-avx2.exe")
         self.stockfish.set_elo_rating(2000)
 
     def is_move_valid(self, move: str) -> bool:

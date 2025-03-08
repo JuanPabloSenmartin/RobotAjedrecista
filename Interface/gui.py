@@ -20,7 +20,7 @@ class ChessGUI:
         }
         return {
             piece: pygame.transform.scale(
-                pygame.image.load(f"assets/{filename}"),
+                pygame.image.load(f"Assets/{filename}"),
                 (self.square_size, self.square_size)
             ) for piece, filename in piece_to_png.items()
         }

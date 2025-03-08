@@ -25,7 +25,7 @@ vcsstring = "git-" + branch + "-" + rev
 
 def get_changelog(progname, version, changelog, date):
     """
-    return a dummy changelog acceptable by debian script engine
+    return a dummy changelog acceptable by debian script Engine
     """
     return """%s (%s) unstable; urgency=low
 
