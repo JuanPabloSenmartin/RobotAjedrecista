@@ -11,42 +11,42 @@ print("""
       """)
 
 ESC = chr(27)
-cv.namedWindow("Detecciones", cv.WINDOW_NORMAL)
-cv.namedWindow("Cam", cv.WINDOW_NORMAL)
+cv.namedWindow("Detections", cv.WINDOW_NORMAL)
+cv.namedWindow("Camera", cv.WINDOW_NORMAL)
 
-defaultPrintOptions = np.get_printoptions()
+default_print_options = np.get_printoptions()
 
-criteria  = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-chessBoard = (9,6)
+chessboard_size = (9, 6)
 
-# chessboard 3D points
-chessboardPointCloud3D = np.zeros((chessBoard[0]*chessBoard[1],3), np.float32)             
-chessboardPointCloud3D[:,:2] = np.mgrid[0:chessBoard[0],0:chessBoard[1]].T.reshape(-1,2)
+# Chessboard 3D points
+chessboard_point_cloud_3d = np.zeros((chessboard_size[0] * chessboard_size[1], 3), np.float32)
+chessboard_point_cloud_3d[:, :2] = np.mgrid[0:chessboard_size[0], 0:chessboard_size[1]].T.reshape(-1, 2)
 
-imgPoints = []
-objPoints = []
+image_points = []
+object_points = []
 
-gradualDarkness = 0.90
+gradual_darkness = 0.90
 
-cam = cv.VideoCapture(2)
+# Set VideoCapture accordingly
+camera = cv.VideoCapture(2)
 
-width = cam.get(cv.CAP_PROP_FRAME_WIDTH)
-height = cam.get(cv.CAP_PROP_FRAME_HEIGHT)
-print("Cam resolution:", width, " x ", height)
-newSize = (640, int(640 * height / width))
-imBlack = np.zeros(newSize[::-1]+(3,), dtype=np.uint8)
+frame_width = camera.get(cv.CAP_PROP_FRAME_WIDTH)
+frame_height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
+new_size = (640, int(640 * frame_height / frame_width))
+black_image = np.zeros(new_size[::-1] + (3,), dtype=np.uint8)
 
 while True:
-    ret, im = cam.read()
+    ret, frame = camera.read()
     if ret:
-        imLowRes = cv.resize(im, newSize)
-        imGrayLowRes = cv.cvtColor(imLowRes, cv.COLOR_BGR2GRAY)
-        ret, corners = cv.findChessboardCorners(imGrayLowRes, chessBoard, None)
+        frame_low_res = cv.resize(frame, new_size)
+        frame_gray_low_res = cv.cvtColor(frame_low_res, cv.COLOR_BGR2GRAY)
+        ret, corners = cv.findChessboardCorners(frame_gray_low_res, chessboard_size, None)
         if ret:
-            cv.drawChessboardCorners(imLowRes, chessBoard, corners, ret)
+            cv.drawChessboardCorners(frame_low_res, chessboard_size, corners, ret)
     
-    cv.imshow('Cam', imLowRes)
+    cv.imshow('Camera', frame_low_res)
 
     key = cv.waitKey(30)
 
@@ -54,37 +54,37 @@ while True:
         key = chr(key)
         match key:
             case ' ':
-                # Repeats and registers detection with high resolution
-                imGray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-                ret, precisionCorners = cv.findChessboardCorners(imGray, chessBoard, None)
+                # Detects and registers chessboard with high resolution
+                frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+                ret, precision_corners = cv.findChessboardCorners(frame_gray, chessboard_size, None)
                 if ret:
-                    objPoints.append(chessboardPointCloud3D)
+                    object_points.append(chessboard_point_cloud_3d)
 
-                    precisionCorners = cv.cornerSubPix(imGray, precisionCorners, (11,11), (-1,-1), criteria)
-                    imgPoints.append(precisionCorners)
+                    precision_corners = cv.cornerSubPix(frame_gray, precision_corners, (11, 11), (-1, -1), criteria)
+                    image_points.append(precision_corners)
 
-                    imBlack = cv.convertScaleAbs(imBlack, alpha=gradualDarkness, beta=0)
-                    cv.drawChessboardCorners(imBlack, chessBoard, corners, ret)
-                    cv.imshow("Detecciones", imBlack)
+                    black_image = cv.convertScaleAbs(black_image, alpha=gradual_darkness, beta=0)
+                    cv.drawChessboardCorners(black_image, chessboard_size, corners, ret)
+                    cv.imshow("detections", black_image)
 
-                    print(len(imgPoints), "pictures taken")
+                    print(len(image_points), "pictures taken")
 
             case 'c':
-                # Calibrates   
-                ret, K, distCoef, rvecs, tvecs = cv.calibrateCamera(objPoints, imgPoints, im.shape[:2][::-1], None, None, flags=cv.CALIB_ZERO_TANGENT_DIST)
+                # Camera calibration
+                ret, intrinsic_matrix, distortion_coefficients, rotation_vectors, translation_vectors = cv.calibrateCamera(
+                    object_points, image_points, frame.shape[:2][::-1], None, None, flags=cv.CALIB_ZERO_TANGENT_DIST)
                 
-                # Write K and distCoef to a YAML file
+                # Write intrinsic_matrix and distortion_coefficients to a YAML file
                 output_file = os.path.join('parameters', 'intrinsic_parameters.yaml')
-                # output_file = 'intrinsic_parameters.yaml'
                 with open(output_file, 'w') as file:
                     yaml.dump({
-                        'K': K.tolist(),
-                        'distCoef': distCoef.tolist()
+                        'intrinsic_matrix': intrinsic_matrix.tolist(),
+                        'distortion_coefficients': distortion_coefficients.tolist()
                     }, file)
-                print(f"Intrinsic matrix K and distortion coefficients saved to {output_file}")
+                print(f"Intrinsic matrix and distortion coefficients saved to {output_file}")
 
             case 'e':
                 break
 
-cam.release()
+camera.release()
 cv.destroyAllWindows()
